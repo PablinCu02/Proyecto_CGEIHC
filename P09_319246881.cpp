@@ -1,13 +1,4 @@
-﻿/*
-Animación:
-Sesión 1:
-Simple o básica:Por banderas y condicionales (más de 1 transformación geométrica se ve modificada
-Compleja: Por medio de funciones y algoritmos.
-Textura Animada
-*/
-//para cargar imagen
-
-
+﻿
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stdio.h>
@@ -34,7 +25,7 @@ Textura Animada
 #include"Model.h"
 #include "Skybox.h"
 
-//para iluminación
+//para iluminaci n
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -42,39 +33,72 @@ Textura Animada
 #include "Material.h"
 const float toRadians = 3.14159265f / 180.0f;
 
-//variables para animación
-float angulovaria = 0.0f;
-
-
-
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 
 Camera camera;
-
 Texture brickTexture;
 Texture dirtTexture;
 Texture plainTexture;
 Texture pisoTexture;
-Texture AgaveTexture;
-
+Texture lamparaTexture;
+Texture lampara2Texture;
+Texture lampara3Texture;
+Texture lampara4Texture;
+Texture lampara5Texture;
+Texture lampara6Texture;
+Texture Juego_Pelota_Texture;
+Texture PiedraTexture;
 Texture AdvTime_FontTexture;
 Texture Marco;
 Texture Puerta;
-Texture dadoTexture;
-Texture Juego_Pelota_Texture;
-Texture PiedraTexture;
 
-Skybox skybox;
 
+Model Juego_Pelota_M;
+Model Pelota_M;
+Model Piedra_M;
 Model Marco_M;
 Model Letrero_M;
 Model PuertaDerecha_M;
 Model PuertaIzquierda_M;
-Model Dado_M;
-Model Juego_Pelota_M;
-Model Piedra_M;
+Model PiramideT_M;
+Model PiramideS_M;
+Model lampara_M;
+Model Globo_M;
+Model Chozas_M;
+Model arbol_M;
+Model BancaG_M;
+Model BancaT_M;
+Model CalendarioA_M;
+Model Kiosco_M;
+Model Pillar_M;
+Model Ring_M;
+Model PisoRing_M;
+Model Cuerdas_M;
+Model Coronas_M;
+Model EstatuaLuchador_M;
+Model MickeyC_M;
+Model MickeyT_M;
+Model MickeyBD_M;
+Model MickeyBI_M;
+Model MickeyPD_M;
+Model MickeyPI_M;
+Model PeachC_M;
+Model PeachT_M;
+Model PeachBD_M;
+Model PeachBI_M;
+Model PeachPD_M;
+Model PeachPI_M;
+Model FinnC_M;
+Model FinnT_M;
+Model FinnBD_M;
+Model FinnBI_M;
+Model FinnPD_M;
+Model FinnPI_M;
+
+
+Skybox skybox;
 
 //materiales
 Material Material_brillante;
@@ -98,7 +122,7 @@ static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
 
-//cálculo del promedio de las normales para sombreado de Phong
+//funci n de calculo de normales por promedio de v rtices 
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
@@ -236,6 +260,7 @@ void setLetterUV(float* vertices, int col, int row)
 }
 
 
+
 int main()
 {
 	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
@@ -244,54 +269,128 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	// VELOCIDAD DE CÁMARA CORREGIDA
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 30.0f, 0.5f);
-
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 1.0f, 0.5f);
 	brickTexture = Texture("Textures/brick.png");
 	brickTexture.LoadTextureA();
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
-	pisoTexture = Texture("Textures/piso.tga");
+	pisoTexture = Texture("Textures/pasto.png");
 	pisoTexture.LoadTextureA();
-	AgaveTexture = Texture("Textures/Agave.tga");
-	AgaveTexture.LoadTextureA();
-	Marco = Texture("Textures/Corrugated_Metal_Sheet_teendf3q_1K_BaseColor.jpg");
-	Marco.LoadTextureA();
-	Puerta = Texture("Textures/Wooden_Log_Wall_udlmecoew_1K_BaseColor.jpg");
-	Puerta.LoadTextureA();
-	dadoTexture = Texture("Textures/texturaDado.png");
-	dadoTexture.LoadTextureA();
+	lamparaTexture = Texture("Textures/StreetLamp1.png");
+	lamparaTexture.LoadTextureA();
+	lampara2Texture = Texture("Textures/StreetLamp2BaseColor.png");
+	lampara2Texture.LoadTextureA();
+	lampara3Texture = Texture("Textures/StreetLamp3Metallic.png");
+	lampara3Texture.LoadTextureA();
+	lampara4Texture = Texture("Textures/StreetLamp4Normal.png");
+	lampara4Texture.LoadTextureA();
+	lampara5Texture = Texture("Textures/StreetLamp5Opacity.png");
+	lampara5Texture.LoadTextureA();
+	lampara6Texture = Texture("Textures/StreetLamp6Roughness.png");
+	lampara6Texture.LoadTextureA();
 	Juego_Pelota_Texture = Texture("Textures/Juego_Pelota.png");
 	Juego_Pelota_Texture.LoadTextureA();
 	PiedraTexture = Texture("Textures/piedra.png");
 	PiedraTexture.LoadTextureA();
-
-
 	AdvTime_FontTexture = Texture("Textures/AdvTime_Font.png");
 	AdvTime_FontTexture.LoadTextureA();
+	Marco = Texture("Textures/Corrugated_Metal_Sheet_teendf3q_1K_BaseColor.jpg");
+	Marco.LoadTextureA();
+	Puerta = Texture("Textures/Wooden_Log_Wall_udlmecoew_1K_BaseColor.jpg");
+	Puerta.LoadTextureA();
 
+
+
+	//Modelos
+	Juego_Pelota_M = Model();
+	Juego_Pelota_M.LoadModel("Models/Juego_Pelota.obj");
+	Pelota_M = Model();
+	Pelota_M.LoadModel("Models/pelota.obj");
+	Piedra_M = Model();
+	Piedra_M.LoadModel("Models/pelota.fbx");
+	PiramideT_M = Model();
+	PiramideT_M.LoadModel("Models/PiramideT.obj");
+	PiramideS_M = Model();
+	PiramideS_M.LoadModel("Models/PiramideSol.obj");
+	lampara_M = Model();
+	lampara_M.LoadModel("Models/lampara.fbx");
+	Globo_M = Model();
+	Globo_M.LoadModel("Models/globo.obj");
+	Chozas_M = Model();
+	Chozas_M.LoadModel("Models/Chozas.obj");
+	arbol_M = Model();
+	arbol_M.LoadModel("Models/arboles.obj");
+	BancaG_M = Model();
+	BancaG_M.LoadModel("Models/banca.obj");
+	BancaT_M = Model();
+	BancaT_M.LoadModel("Models/Banca_Texturizada.obj");
+	CalendarioA_M = Model();
+	CalendarioA_M.LoadModel("Models/calendario_azteca.obj");
+	Kiosco_M = Model();
+	Kiosco_M.LoadModel("Models/kiosco.obj");
+	Pillar_M = Model();
+	Pillar_M.LoadModel("Models/pillar.obj");
+	Ring_M = Model();
+	Ring_M.LoadModel("Models/Ring.obj");
+	PisoRing_M = Model();
+	PisoRing_M.LoadModel("Models/PisoRing.obj");
+	Cuerdas_M = Model();
+	Cuerdas_M.LoadModel("Models/Cuerdas.obj");
+	Coronas_M = Model();
+	Coronas_M.LoadModel("Models/Coronas.obj");
+	EstatuaLuchador_M = Model();
+	EstatuaLuchador_M.LoadModel("Models/luchadores.obj");
+	MickeyC_M = Model();
+	MickeyC_M.LoadModel("Models/MickeyC.obj");
+	MickeyT_M = Model();
+	MickeyT_M.LoadModel("Models/MickeyT.obj");
+	MickeyBD_M = Model();
+	MickeyBD_M.LoadModel("Models/MickeyBD.obj");
+	MickeyBI_M = Model();
+	MickeyBI_M.LoadModel("Models/MickeyBI.obj");
+	MickeyPD_M = Model();
+	MickeyPD_M.LoadModel("Models/MickeyPD.obj");
+	MickeyPI_M = Model();
+	MickeyPI_M.LoadModel("Models/MickeyPI.obj");
+	PeachC_M = Model();
+	PeachC_M.LoadModel("Models/PeachC.obj");
+	PeachT_M = Model();
+	PeachT_M.LoadModel("Models/PeachT.obj");
+	PeachBD_M = Model();
+	PeachBD_M.LoadModel("Models/PeachBD.obj");
+	PeachBI_M = Model();
+	PeachBI_M.LoadModel("Models/PeachBI.obj");
+	PeachPD_M = Model();
+	PeachPD_M.LoadModel("Models/PeachPD.obj");
+	PeachPI_M = Model();
+	PeachPI_M.LoadModel("Models/PeachPI.obj");
+	FinnC_M = Model();
+	FinnC_M.LoadModel("Models/FinnC.obj");
+	FinnT_M = Model();
+	FinnT_M.LoadModel("Models/FinnT.obj");
+	FinnBD_M = Model();
+	FinnBD_M.LoadModel("Models/FinnBD.obj");
+	FinnBI_M = Model();
+	FinnBI_M.LoadModel("Models/FinnBI.obj");
+	FinnPD_M = Model();
+	FinnPD_M.LoadModel("Models/FinnPD.obj");
+	FinnPI_M = Model();
+	FinnPI_M.LoadModel("Models/FinnPI.obj");
 	Marco_M = Model();
-	Marco_M.LoadModel("Models/Marco.fbx");
+	Marco_M.LoadModel("Models/Marco.f bx");
 	Letrero_M = Model();
 	Letrero_M.LoadModel("Models/Letrero.fbx");
 	PuertaDerecha_M = Model();
 	PuertaDerecha_M.LoadModel("Models/PuertaDerecha.fbx");
 	PuertaIzquierda_M = Model();
 	PuertaIzquierda_M.LoadModel("Models/PuertaIzquierda.fbx");
-	Dado_M = Model();
-	Dado_M.LoadModel("Models/Dado.fbx");
-
-	Juego_Pelota_M = Model();
-	Juego_Pelota_M.LoadModel("Models/Juego_Pelota.obj");
-
-	Piedra_M = Model();
-	Piedra_M.LoadModel("Models/pelota.fbx");
 
 	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
 	float toffsetletraU = 0.0f;
 	float toffsetletraV = 0.0f;
+
 
 	std::vector<std::string> skyboxFaces;
 	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
@@ -306,6 +405,7 @@ int main()
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
+	//Luces
 
 	//luz direccional, sólo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
@@ -340,12 +440,9 @@ int main()
 	spotLightCount++;
 
 
-
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
 		uniformSpecularIntensity = 0, uniformShininess = 0, uniformTextureOffset = 0;
 	GLuint uniformColor = 0;
-
-
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 
 	glm::mat4 model(1.0);
@@ -384,8 +481,6 @@ int main()
 	float vel = 90.0f;
 	static bool teclaOPresionada = false;
 
-
-
 	bool puertaDerechaAbierta = false;
 	bool puertaDerechaAnimando = false;
 	bool teclaPPresionada = false;
@@ -395,20 +490,11 @@ int main()
 	int fase = 0;
 	glm::vec3 puertaDerechaPos(0.0f);
 
-	//Animación del Dado 
-	bool dadoAnimando = false;
-	bool teclaIPresionada = false;
-	bool dadoEnSuelo = false;
-
-	glm::vec3 posDado(5.0f, 10.0f, -5.0f);
-	glm::vec3 velDado(0.0f, 0.0f, 0.0f);
 	// GRAVEDAD CORREGIDA
 	float gravedad = -45.0f;
 	float rotacionDado = 0.0f;
 	glm::vec3 rotDadoActual(0.0f);
 	glm::vec3 rotVelocidad(180.0f, 240.0f, 200.0f);
-
-	int caraDado = 0;
 
 	// Variables de Animación de la Pelota 
 	bool pelotaSaltando = false;
@@ -420,17 +506,16 @@ int main()
 	float fuerzaSalto = 30.0f;
 
 
+
+	bool avanza = true;
+	bool lightsA[2] = { false, false };
+	////Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
 		deltaTime = now - lastTime;
-		// DELTATIME CORREGIDO (LÍNEA COMENTADA)
-		//deltaTime += (now - lastTime) / limitFPS;
+		deltaTime += (now - lastTime) / limitFPS;
 		lastTime = now;
-
-		angulovaria += 0.5f * deltaTime;
-
-
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
@@ -447,9 +532,8 @@ int main()
 		uniformView = shaderList[0].GetViewLocation();
 		uniformEyePosition = shaderList[0].GetEyePositionLocation();
 		uniformColor = shaderList[0].getColorLocation();
-		uniformTextureOffset = shaderList[0].getOffsetLocation();
 
-		//información en el shader de intensidad especular y brillo
+		//informaci n en el shader de intensidad especular y brillo
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
@@ -544,34 +628,6 @@ int main()
 			}
 		}
 
-		// Animacion del Dado con la tecla I
-		if (mainWindow.getsKeys()[GLFW_KEY_I]) {
-			if (!teclaIPresionada) {
-				teclaIPresionada = true;
-				if (!dadoAnimando && !dadoEnSuelo) {
-					dadoAnimando = true;
-					velDado = glm::vec3(0.0f, 0.0f, 0.0f);
-					rotDadoActual = glm::vec3(0.0f);
-					rotVelocidad = glm::vec3(
-						180.0f + rand() % 90,
-						180.0f + rand() % 90,
-						180.0f + rand() % 90
-					);
-					caraDado = rand() % 9;
-				}
-				else if (dadoEnSuelo) {
-					dadoEnSuelo = false;
-					dadoAnimando = false;
-					posDado = glm::vec3(5.0f, 10.0f, -5.0f);
-					velDado = glm::vec3(0.0f);
-					rotDadoActual = glm::vec3(0.0f);
-				}
-			}
-		}
-		else {
-			teclaIPresionada = false;
-		}
-
 		// Salto de Pelota (Lógica de Tecla)
 		if (mainWindow.getsKeys()[GLFW_KEY_J]) {
 			if (!teclaJPresionada && !pelotaSaltando) {
@@ -582,24 +638,6 @@ int main()
 		}
 		else {
 			teclaJPresionada = false;
-		}
-
-
-		// Actualizacion del movimiento y rotacion (Dado)
-		if (dadoAnimando) {
-			// aplicar gravedad
-			velDado.y += gravedad * deltaTime;
-			posDado += velDado * deltaTime;
-
-			// rotación continua en tres ejes
-			rotDadoActual += rotVelocidad * deltaTime;
-
-			// detener al tocar el suelo
-			if (posDado.y <= 0.5f) {
-				posDado.y = 0.5f;
-				dadoAnimando = false;
-				dadoEnSuelo = true;
-			}
 		}
 
 		// Salto de Pelota
@@ -616,32 +654,6 @@ int main()
 				pelotaVelocidadY = 0.0f;
 			}
 		}
-
-		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(30.0f, 1.0f, 30.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
-		pisoTexture.UseTexture();
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh(); // piso
-
-		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
-		//Agave ¿qué sucede si lo renderizan antes del coche y de la pista?
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
-		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		//blending: transparencia o traslucidez
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		AgaveTexture.UseTexture();
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[3]->RenderMesh();
-
 
 		/*
 		* Arco con letrero
@@ -703,9 +715,9 @@ int main()
 
 		// Renderizar Juego Pelota 
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(28.5f, -1.5f, 15.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(13.0f, 13.0f, 13.0f));
+		model = glm::translate(model, glm::vec3(180.0f, -1.5f, -180.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(15.0f, 15.0f, 15.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
 		Juego_Pelota_Texture.UseTexture();
@@ -715,16 +727,15 @@ int main()
 		// Renderizar Pelota 
 
 		// CALCULAR POSICIÓN
-		float pelotaBaseX = 28.5f; // Centro del pasillo 
-		float pelotaBaseZ = 15.0f;  // Centro del pasillo 
+		float pelotaBaseX = 180.5f; // Centro del pasillo 
+		float pelotaBaseZ = -180.0f;  // Centro del pasillo 
 
 		// Parámetros de animación
 		float pelotaAmplitud = 25.0f; // Límite del va y ven
 		float pelotaVelocidad = 0.8f;
 		float pelotaOffsetZ = glm::sin(glfwGetTime() * pelotaVelocidad) * pelotaAmplitud;
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(pelotaBaseX, pelotaPosBaseY, pelotaBaseZ + pelotaOffsetZ));
-
+		model = glm::translate(model, glm::vec3(pelotaBaseX + pelotaOffsetZ, pelotaPosBaseY, pelotaBaseZ));
 		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
@@ -733,45 +744,328 @@ int main()
 		PiedraTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Piedra_M.RenderModel();
-
-		//dado
+		glm::mat4 model(1.0);
+		glm::mat4 modelaux(1.0);
+		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 		model = glm::mat4(1.0);
-		model = glm::translate(model, posDado);
-		model = glm::rotate(model, glm::radians(40.0f), glm::vec3(1, 0, 0));
-		model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 0, 1));
-
-
-		if (dadoAnimando) {
-			model = glm::rotate(model, glm::radians(rotDadoActual.x), glm::vec3(1, 0, 0));
-			model = glm::rotate(model, glm::radians(rotDadoActual.y), glm::vec3(0, 1, 0));
-			model = glm::rotate(model, glm::radians(rotDadoActual.z), glm::vec3(0, 0, 1));
-		}
-		else if (dadoEnSuelo) {
-			switch (caraDado) {
-			case 0: break;
-			case 1: model = glm::rotate(model, glm::radians(80.0f), glm::vec3(0, 1, 0));
-				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1));
-				break;
-			case 2: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0)); break;
-			case 3: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
-				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
-				break;
-			case 4: model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
-				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
-				break;
-			case 5: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1)); break;
-			case 6: model = glm::rotate(model, glm::radians(360.0f), glm::vec3(0, 1, 0)); break;
-			case 7: model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0, 1, 0)); break;
-			case 8: model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0, 1, 0));
-				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
-				break;
-			}
-		}
-
+		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(30.0f, 1.0f, 30.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		dadoTexture.UseTexture();
-		Dado_M.RenderModel();
-		glDisable(GL_BLEND);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		pisoTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[2]->RenderMesh();
+
+
+		//Piramide Chichen
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(180.5f, -1.5f, 180.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.8f, 1.8f, 1.8f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Juego_Pelota_Texture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PiramideT_M.RenderModel();
+
+		//PiramideSol
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(-180.0f, -1.0f, -180.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PiramideS_M.RenderModel();
+
+		//JuegoPelota
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(180.0f, -1.5f, -180.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(14.0f, 14.0f, 14.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Juego_Pelota_Texture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Juego_Pelota_M.RenderModel();
+
+		//Globo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 50.5f, -180.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(14.0f, 14.0f, 14.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Globo_M.RenderModel();
+
+		//Chozas
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Chozas_M.RenderModel();
+
+		//Arboles
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		//Banca 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		//BancaT
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		//Kiosco
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Kiosco_M.RenderModel();
+
+		//Pillar
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+
+		//Ring
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Ring_M.RenderModel();
+
+
+		//Model PisoRing
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PisoRing_M.RenderModel();
+
+		//Model Cuerdas
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Cuerdas_M.RenderModel();
+		Model Cuerdas_M;
+
+		//Model Coronas
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Coronas_M.RenderModel();
+		Model Coronas_M;
+
+		//Model EstatuaLuchador
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(45.0f, -0.5f, 60.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		EstatuaLuchador_M.RenderModel();
+		Model EstatuaLuchador_M;
+
+
+		//Calendario
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-180.0f, -0.5f, 180.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		CalendarioA_M.RenderModel();
+
+		//Modelo base (padre de todos los Mickey)
+		glm::mat4 baseModel = glm::mat4(1.0);
+		baseModel = glm::translate(baseModel, glm::vec3(0.0f, -0.5f, 60.0f));
+		baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		baseModel = glm::scale(baseModel, glm::vec3(0.2f, 0.2f, 0.2f));
+
+		//Model MickeyC
+		glm::mat4 modelC = baseModel;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelC));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyC_M.RenderModel();
+
+		//Model MickeyT
+		glm::mat4 modelT = baseModel;
+		modelT = glm::translate(modelT, glm::vec3(0.0f, 0.0f, 0.0f)); // igual posición base
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelT));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyT_M.RenderModel();
+
+		//Model MickeyBD
+		glm::mat4 modelBD = baseModel;
+		modelBD = glm::translate(modelBD, glm::vec3(0.0f, 0.0f, 0.0f)); // mismo punto
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBD));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyBD_M.RenderModel();
+
+		//Model MickeyBI
+		glm::mat4 modelBI = baseModel;
+		modelBI = glm::translate(modelBI, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBI));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyBI_M.RenderModel();
+
+		//Model MickeyPD
+		glm::mat4 modelPD = baseModel;
+		modelPD = glm::translate(modelPD, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPD));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyPD_M.RenderModel();
+
+		//Model MickeyPI
+		glm::mat4 modelPI = baseModel;
+		modelPI = glm::translate(modelPI, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPI));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		MickeyPI_M.RenderModel();
+
+		//Modelo base (padre de todos los Peach)
+		glm::mat4 baseModelPeach = glm::mat4(1.0);
+		baseModelPeach = glm::translate(baseModelPeach, glm::vec3(0.0f, -0.5f, 60.0f));
+		baseModelPeach = glm::rotate(baseModelPeach, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		baseModelPeach = glm::scale(baseModelPeach, glm::vec3(0.2f, 0.2f, 0.2f));
+
+		//Model PeachC
+		glm::mat4 modelCPeach = baseModelPeach;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachC_M.RenderModel();
+
+		//Model PeachT
+		glm::mat4 modelTPeach = baseModelPeach;
+		modelTPeach = glm::translate(modelTPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachT_M.RenderModel();
+
+		//Model PeachBD
+		glm::mat4 modelBDPeach = baseModelPeach;
+		modelBDPeach = glm::translate(modelBDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBDPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachBD_M.RenderModel();
+
+		//Model PeachBI
+		glm::mat4 modelBIPeach = baseModelPeach;
+		modelBIPeach = glm::translate(modelBIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBIPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachBI_M.RenderModel();
+
+		//Model PeachPD
+		glm::mat4 modelPDPeach = baseModelPeach;
+		modelPDPeach = glm::translate(modelPDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPDPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachPD_M.RenderModel();
+
+		//Model PeachPI
+		glm::mat4 modelPIPeach = baseModelPeach;
+		modelPIPeach = glm::translate(modelPIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPIPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachPI_M.RenderModel();
+
+		//Modelo base (padre de todos los Finn)
+		glm::mat4 baseModelFinn = glm::mat4(1.0);
+		baseModelFinn = glm::translate(baseModelFinn, glm::vec3(0.0f, -0.5f, 10.0f));
+		baseModelFinn = glm::rotate(baseModelFinn, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		baseModelFinn = glm::scale(baseModelFinn, glm::vec3(2.0f, 2.0f, 2.0f));
+
+		//Model FinnC
+		glm::mat4 modelCFinn = baseModelFinn;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnC_M.RenderModel();
+
+		//Model FinnT
+		glm::mat4 modelTFinn = baseModelFinn;
+		modelTFinn = glm::translate(modelTFinn, glm::vec3(0.0f, 0.0f, 0.0f)); // igual posición base
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnT_M.RenderModel();
+
+		//Model FinnBD
+		glm::mat4 modelBDFinn = baseModelFinn;
+		modelBDFinn = glm::translate(modelBDFinn, glm::vec3(0.0f, 0.0f, 0.0f)); // mismo punto
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBDFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnBD_M.RenderModel();
+
+		//Model FinnBI
+		glm::mat4 modelBIFinn = baseModelFinn;
+		modelBIFinn = glm::translate(modelBIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBIFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnBI_M.RenderModel();
+
+		//Model FinnPD
+		glm::mat4 modelPDFinn = baseModelFinn;
+		modelPDFinn = glm::translate(modelPDFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPDFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnPD_M.RenderModel();
+
+		//Model FinnPI
+		glm::mat4 modelPIFinn = baseModelFinn;
+		modelPIFinn = glm::translate(modelPIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPIFinn));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		FinnPI_M.RenderModel();
+
+		//Lampara
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, 5.8f, 5.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.006f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		lamparaTexture.UseTexture();
+		lampara2Texture.UseTexture();
+		lampara3Texture.UseTexture();
+		lampara4Texture.UseTexture();
+		lampara5Texture.UseTexture();
+		lampara6Texture.UseTexture();
+		lampara_M.RenderModel();
+
+
 		glUseProgram(0);
 		mainWindow.swapBuffers();
 	}
