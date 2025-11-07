@@ -1,4 +1,13 @@
-﻿
+﻿/*
+Animación:
+Sesión 1:
+Simple o básica:Por banderas y condicionales (más de 1 transformación geométrica se ve modificada
+Compleja: Por medio de funciones y algoritmos.
+Textura Animada
+*/
+//para cargar imagen
+
+
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stdio.h>
@@ -25,7 +34,7 @@
 #include"Model.h"
 #include "Skybox.h"
 
-//para iluminaci n
+//para iluminación
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -33,52 +42,39 @@
 #include "Material.h"
 const float toRadians = 3.14159265f / 180.0f;
 
+//variables para animación
+float angulovaria = 0.0f;
+
+
+
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 
 Camera camera;
+
 Texture brickTexture;
 Texture dirtTexture;
 Texture plainTexture;
 Texture pisoTexture;
-Texture lamparaTexture;
-Texture lampara2Texture;
-Texture lampara3Texture;
-Texture lampara4Texture;
-Texture lampara5Texture;
-Texture lampara6Texture;
+Texture AgaveTexture;
+
+Texture AdvTime_FontTexture;
+Texture Marco;
+Texture Puerta;
+Texture dadoTexture;
 Texture Juego_Pelota_Texture;
 Texture PiedraTexture;
 
+Skybox skybox;
 
+Model Marco_M;
+Model Letrero_M;
+Model PuertaDerecha_M;
+Model PuertaIzquierda_M;
+Model Dado_M;
 Model Juego_Pelota_M;
 Model Piedra_M;
-Model PiramideT_M;
-Model PiramideS_M;
-Model lampara_M;
-Model Globo_M;
-Model Chozas_M;
-Model arbol_M;
-Model BancaG_M;
-Model BancaT_M;
-Model CalendarioA_M;
-Model Kiosco_M;
-Model Pillar_M;
-Model Ring_M;
-Model PisoRing_M;
-Model Cuerdas_M;
-Model Coronas_M;
-Model EstatuaLuchador_M;
-Model MickeyC_M;
-Model MickeyT_M;
-Model MickeyBD_M;
-Model MickeyBI_M;
-Model MickeyPD_M;
-Model MickeyPI_M;
-
-
-Skybox skybox;
 
 //materiales
 Material Material_brillante;
@@ -92,13 +88,8 @@ static double limitFPS = 1.0 / 60.0;
 // luz direccional
 DirectionalLight mainLight;
 //para declarar varias luces de tipo pointlight
-PointLight pointLights1[MAX_POINT_LIGHTS];
-PointLight pointLights2[MAX_POINT_LIGHTS];
-PointLight pointLights3[MAX_POINT_LIGHTS];
-
-//Luces spot
-SpotLight spotLights1[MAX_SPOT_LIGHTS];
-SpotLight spotLights2[MAX_SPOT_LIGHTS];
+PointLight pointLights[MAX_POINT_LIGHTS];
+SpotLight spotLights[MAX_SPOT_LIGHTS];
 
 // Vertex Shader
 static const char* vShader = "shaders/shader_light.vert";
@@ -107,7 +98,7 @@ static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
 
-//funci n de calculo de normales por promedio de v rtices 
+//cálculo del promedio de las normales para sombreado de Phong
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
@@ -160,12 +151,11 @@ void CreateObjects()
 	};
 
 	GLfloat floorVertices[] = {
-	 -10.0f, 0.0f, -10.0f,   0.0f, 0.0f,      0.0f, -1.0f, 0.0f,
-	 10.0f, 0.0f, -10.0f,  30.0f, 0.0f,      0.0f, -1.0f, 0.0f,
-	-10.0f, 0.0f,  10.0f,   0.0f, 30.0f,     0.0f, -1.0f, 0.0f,
-	 10.0f, 0.0f,  10.0f,  30.0f, 30.0f,     0.0f, -1.0f, 0.0f
+		-10.0f, 0.0f, -10.0f,	0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
+		10.0f, 0.0f, -10.0f,	10.0f, 0.0f,	0.0f, -1.0f, 0.0f,
+		-10.0f, 0.0f, 10.0f,	0.0f, 10.0f,	0.0f, -1.0f, 0.0f,
+		10.0f, 0.0f, 10.0f,		10.0f, 10.0f,	0.0f, -1.0f, 0.0f
 	};
-
 	unsigned int vegetacionIndices[] = {
 	   0, 1, 2,
 	   0, 2, 3,
@@ -187,6 +177,19 @@ void CreateObjects()
 
 	};
 
+	unsigned int AdvTimeIndices[] = {
+		0, 1, 2,
+		0, 2, 3,
+	};
+
+	GLfloat AdvTimeVertices[] = {
+		//   X      Y      Z     U       V        Nx    Ny    Nz
+		-0.5f, 0.0f,  0.5f,   0.1f,   0.98f,   0.0f, -1.0f, 0.0f, // arriba dere  
+		 0.5f, 0.0f,  0.5f,   0.01f,     0.98f,   0.0f, -1.0f, 0.0f, // arriba izq
+		 0.5f, 0.0f, -0.5f,   0.01f,     0.9f,  0.0f, -1.0f, 0.0f, // abajo izq
+		-0.5f, 0.0f, -0.5f,   0.1f,   0.9f,  0.0f, -1.0f, 0.0f  // abajo der
+	};
+
 	Mesh* obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
@@ -203,10 +206,9 @@ void CreateObjects()
 	obj4->CreateMesh(vegetacionVertices, vegetacionIndices, 64, 12);
 	meshList.push_back(obj4);
 
-	calcAverageNormals(indices, 12, vertices, 32, 8, 5);
-
-	calcAverageNormals(vegetacionIndices, 12, vegetacionVertices, 64, 8, 5);
-
+	Mesh* obj5 = new Mesh();
+	obj5->CreateMesh(AdvTimeVertices, AdvTimeIndices, 32, 6);
+	meshList.push_back(obj5);
 }
 
 
@@ -217,6 +219,23 @@ void CreateShaders()
 	shaderList.push_back(*shader1);
 }
 
+void setLetterUV(float* vertices, int col, int row)
+{
+	float uStep = 1.0f / 9.0f;  // 9 columnas
+	float vStep = 1.0f / 3.0f;  // 3 filas
+	float u0 = col * uStep;
+	float v0 = 1.0f - (row + 1) * vStep;
+	float u1 = u0 + uStep;
+	float v1 = v0 + vStep;
+
+	// Actualiza las coordenadas UV del plano
+	vertices[3] = u0; vertices[4] = v1;  // arriba izq
+	vertices[11] = u1; vertices[12] = v1;  // arriba der
+	vertices[19] = u1; vertices[20] = v0;  // abajo der
+	vertices[27] = u0; vertices[28] = v0;  // abajo izq
+}
+
+
 int main()
 {
 	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
@@ -225,84 +244,54 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.3f, 0.5f);
+	// VELOCIDAD DE CÁMARA CORREGIDA
+	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 30.0f, 0.5f);
+
 	brickTexture = Texture("Textures/brick.png");
 	brickTexture.LoadTextureA();
 	dirtTexture = Texture("Textures/dirt.png");
 	dirtTexture.LoadTextureA();
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
-	pisoTexture = Texture("Textures/pasto.png");
+	pisoTexture = Texture("Textures/piso.tga");
 	pisoTexture.LoadTextureA();
-	lamparaTexture = Texture("Textures/StreetLamp1.png");
-	lamparaTexture.LoadTextureA();
-	lampara2Texture = Texture("Textures/StreetLamp2BaseColor.png");
-	lampara2Texture.LoadTextureA();
-	lampara3Texture = Texture("Textures/StreetLamp3Metallic.png");
-	lampara3Texture.LoadTextureA();
-	lampara4Texture = Texture("Textures/StreetLamp4Normal.png");
-	lampara4Texture.LoadTextureA();
-	lampara5Texture = Texture("Textures/StreetLamp5Opacity.png");
-	lampara5Texture.LoadTextureA();
-	lampara6Texture = Texture("Textures/StreetLamp6Roughness.png");
-	lampara6Texture.LoadTextureA();
+	AgaveTexture = Texture("Textures/Agave.tga");
+	AgaveTexture.LoadTextureA();
+	Marco = Texture("Textures/Corrugated_Metal_Sheet_teendf3q_1K_BaseColor.jpg");
+	Marco.LoadTextureA();
+	Puerta = Texture("Textures/Wooden_Log_Wall_udlmecoew_1K_BaseColor.jpg");
+	Puerta.LoadTextureA();
+	dadoTexture = Texture("Textures/texturaDado.png");
+	dadoTexture.LoadTextureA();
 	Juego_Pelota_Texture = Texture("Textures/Juego_Pelota.png");
 	Juego_Pelota_Texture.LoadTextureA();
 	PiedraTexture = Texture("Textures/piedra.png");
 	PiedraTexture.LoadTextureA();
 
 
-	//Modelos
+	AdvTime_FontTexture = Texture("Textures/AdvTime_Font.png");
+	AdvTime_FontTexture.LoadTextureA();
+
+	Marco_M = Model();
+	Marco_M.LoadModel("Models/Marco.fbx");
+	Letrero_M = Model();
+	Letrero_M.LoadModel("Models/Letrero.fbx");
+	PuertaDerecha_M = Model();
+	PuertaDerecha_M.LoadModel("Models/PuertaDerecha.fbx");
+	PuertaIzquierda_M = Model();
+	PuertaIzquierda_M.LoadModel("Models/PuertaIzquierda.fbx");
+	Dado_M = Model();
+	Dado_M.LoadModel("Models/Dado.fbx");
+
 	Juego_Pelota_M = Model();
 	Juego_Pelota_M.LoadModel("Models/Juego_Pelota.obj");
+
 	Piedra_M = Model();
 	Piedra_M.LoadModel("Models/pelota.fbx");
-	PiramideT_M = Model();
-	PiramideT_M.LoadModel("Models/PiramideT.obj");
-	PiramideS_M = Model();
-	PiramideS_M.LoadModel("Models/PiramideSol.obj");
-	lampara_M = Model();
-	lampara_M.LoadModel("Models/lampara.fbx");
-	Globo_M = Model();
-	Globo_M.LoadModel("Models/globo.obj");
-	Chozas_M = Model();
-	Chozas_M.LoadModel("Models/Chozas.obj");
-	arbol_M = Model();
-	arbol_M.LoadModel("Models/arboles.obj");
-	BancaG_M = Model ();
-	BancaG_M.LoadModel("Models/banca.obj");
-	BancaT_M = Model();
-	BancaT_M.LoadModel("Models/Banca_Texturizada.obj");
-	CalendarioA_M = Model();
-	CalendarioA_M.LoadModel("Models/calendario_azteca.obj");
-	Kiosco_M = Model();
-	Kiosco_M.LoadModel("Models/kiosco.obj");
-	Pillar_M = Model();
-	Pillar_M.LoadModel("Models/pillar.obj");
-	Ring_M= Model();
-	Ring_M.LoadModel("Models/Ring.obj");
-	PisoRing_M = Model();
-	PisoRing_M.LoadModel("Models/PisoRing.obj");
-	Cuerdas_M = Model();
-	Cuerdas_M.LoadModel("Models/Cuerdas.obj");
-	Coronas_M = Model();
-	Coronas_M.LoadModel("Models/Coronas.obj");
-	EstatuaLuchador_M = Model();
-	EstatuaLuchador_M.LoadModel("Models/luchadores.obj");
-	MickeyC_M = Model();
-	MickeyC_M.LoadModel("Models/MickeyC.obj");
-	MickeyT_M = Model();
-	MickeyT_M.LoadModel("Models/MickeyT.obj");
-	MickeyBD_M = Model();
-	MickeyBD_M.LoadModel("Models/MickeyBD.obj");
-	MickeyBI_M = Model();
-	MickeyBI_M.LoadModel("Models/MickeyBI.obj");
-	MickeyPD_M = Model();
-	MickeyPD_M.LoadModel("Models/MickeyPD.obj");
-	MickeyPI_M = Model();
-	MickeyPI_M.LoadModel("Models/MickeyPI.obj");
 
-
+	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
+	float toffsetletraU = 0.0f;
+	float toffsetletraV = 0.0f;
 
 	std::vector<std::string> skyboxFaces;
 	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_rt.tga");
@@ -317,82 +306,131 @@ int main()
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
-	//Luces
 
-	//luz direccional, s lo 1 y siempre debe de existir
+	//luz direccional, sólo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.3f, 0.3f, // intensidad ambiental (radiacion de la luz), intensidad difusa
-		0.0f, -1.0f, 0.0f);
-
-	//luces puntuales (pointlight)
-	unsigned int pointLightCount = 0; //contador de luces puntuales
-
-	//Declaraci n de primer luz puntual
-	//Luz blanca
-	pointLights1[0] = PointLight(1.0f, 1.0f, 1.0f,
-		1.0f, 2.0f,
-		0.0f, 5.4f, 1.0f,
-		0.1f, 0.7f, 0.05f);
+		0.3f, 0.3f,
+		0.0f, 0.0f, -1.0f);
+	//contador de luces puntuales
+	unsigned int pointLightCount = 0;
+	//Declaración de primer luz puntual
+	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
+		0.0f, 1.0f,
+		0.0f, 2.5f, 1.5f,
+		0.3f, 0.2f, 0.1f);
 	pointLightCount++;
 
-	pointLights2[0] = PointLight(0.255f, 0.255f, 0.0f,
-		0.4f, 3.0f,
-		10.0f, -0.1f, -4.0,
-		1.0f, 0.09f, 0.032f);
-	pointLightCount++;
-
-	pointLights3[0] = pointLights1[0];
-	pointLights3[1] = pointLights2[0];
-
-
-	// luces spotlight
 	unsigned int spotLightCount = 0;
+	//linterna
+	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f,
+		0.0f, 2.0f,
+		0.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		5.0f);
+	spotLightCount++;
 
-	////Capo
-	//spotLights1[0] = SpotLight(0.899989, 0.2f, 0.965540f,
-	//	1.0f, 2.0f,
-	//	0.0f, 0.0f, 0.0f,
-	//	-1.0f, 0.0f, 0.0f,
-	//	1.0f, 0.0f, 0.0f,
-	//	15.0f);
-	//spotLightCount++;
+	//luz fija
+	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
+		1.0f, 2.0f,
+		5.0f, 10.0f, 0.0f,
+		0.0f, -5.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		15.0f);
+	spotLightCount++;
 
-	////Luz adelante
-	//spotLights1[1] = SpotLight(0.998766f, 0.987878f, 0.0f,
-	//	1.0f, 2.0f,
-	//	0.0f, 0.0f, 0.0f,
-	//	-1.0f, 0.0f, 0.0f,
-	//	1.0f, 0.007f, 0.0002f,
-	//	12.5f);
-	//spotLightCount++;
 
-	//// luz atras
-	//spotLights1[2] = SpotLight(1.0f, 0.0f, 0.0f,
-	//	1.0f, 2.0f,
-	//	0.0f, 0.0f, 0.0f,
-	//	1.0f, 0.0f, 0.0f,
-	//	1.0f, 0.007f, 0.0002f,
-	//	12.5f);
-	//spotLightCount++;
-
-	spotLights2[0] = spotLights1[0];
-	spotLights2[1] = spotLights1[2];
-	spotLights2[2] = spotLights1[1];
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-		uniformSpecularIntensity = 0, uniformShininess = 0;
+		uniformSpecularIntensity = 0, uniformShininess = 0, uniformTextureOffset = 0;
 	GLuint uniformColor = 0;
+
+
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 
-	bool avanza = true;
-	bool lightsA[2] = { false, false };
-	////Loop mientras no se cierra la ventana
+	glm::mat4 model(1.0);
+	glm::mat4 modelaux(1.0);
+	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+	std::vector<glm::vec2> offsets = {
+	glm::vec2(0.65f, 0.57f), // P
+	glm::vec2(0.88f, 0.57f), // R
+	glm::vec2(0.57f, 0.56f), // O
+	glm::vec2(0.651f,0.46f), // Y
+	glm::vec2(0.45f, 0.67f), // E
+	glm::vec2(0.23f, 0.67f), // C
+	glm::vec2(0.11f, 0.46f), // T
+	glm::vec2(0.57f, 0.56f), // O
+	glm::vec2(0.23f, 0.67f), // C
+	glm::vec2(0.655f,0.67f), // G
+	glm::vec2(0.45f, 0.67f), // E
+	glm::vec2(0.86f, 0.67f), // I
+	glm::vec2(0.77f, 0.67f), // H
+	glm::vec2(0.23f, 0.67f)  // C
+	};
+
+
+	static float tiempoAcumulado = 0.0f;
+	static int indiceInicio = 0;
+	int letrasVisibles = 4;
+	// VELOCIDAD DEL LETRERO CORREGIDA
+	float intervaloCambio = 0.7f;
+	glm::vec3 basePos(-12.0f, 2.5f, 9.5f);
+	float separacion = 1.5f;
+	glm::vec3 escalaLetras(1.5f, 2.0f, 2.0f);
+
+	bool abierta = false;
+	float ang = 0.0f;
+	float vel = 90.0f;
+	static bool teclaOPresionada = false;
+
+
+
+	bool puertaDerechaAbierta = false;
+	bool puertaDerechaAnimando = false;
+	bool teclaPPresionada = false;
+
+	float progresoAnim = 0.0f;
+	float duracionFase = 1.0f;
+	int fase = 0;
+	glm::vec3 puertaDerechaPos(0.0f);
+
+	//Animación del Dado 
+	bool dadoAnimando = false;
+	bool teclaIPresionada = false;
+	bool dadoEnSuelo = false;
+
+	glm::vec3 posDado(5.0f, 10.0f, -5.0f);
+	glm::vec3 velDado(0.0f, 0.0f, 0.0f);
+	// GRAVEDAD CORREGIDA
+	float gravedad = -45.0f;
+	float rotacionDado = 0.0f;
+	glm::vec3 rotDadoActual(0.0f);
+	glm::vec3 rotVelocidad(180.0f, 240.0f, 200.0f);
+
+	int caraDado = 0;
+
+	// Variables de Animación de la Pelota 
+	bool pelotaSaltando = false;
+	bool teclaJPresionada = false;
+	float pelotaVelocidadY = 0.0f;
+	// ALTURA BASE 
+	float pelotaPosBaseY = -0.5f;
+	// FUERZA DE SALTO 
+	float fuerzaSalto = 30.0f;
+
+
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
 		deltaTime = now - lastTime;
-		deltaTime += (now - lastTime) / limitFPS;
+		// DELTATIME CORREGIDO (LÍNEA COMENTADA)
+		//deltaTime += (now - lastTime) / limitFPS;
 		lastTime = now;
+
+		angulovaria += 0.5f * deltaTime;
+
+
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
@@ -409,8 +447,9 @@ int main()
 		uniformView = shaderList[0].GetViewLocation();
 		uniformEyePosition = shaderList[0].GetEyePositionLocation();
 		uniformColor = shaderList[0].getColorLocation();
+		uniformTextureOffset = shaderList[0].getOffsetLocation();
 
-		//informaci n en el shader de intensidad especular y brillo
+		//información en el shader de intensidad especular y brillo
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
@@ -418,275 +457,321 @@ int main()
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
 		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
-		//informaci n al shader de fuentes de iluminaci n
+		// luz ligada a la cámara de tipo flash
+		glm::vec3 lowerLight = camera.getCameraPosition();
+		lowerLight.y -= 0.3f;
+		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
+		//información al shader de fuentes de iluminación
 		shaderList[0].SetDirectionalLight(&mainLight);
+		shaderList[0].SetPointLights(pointLights, pointLightCount);
+		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
-		if (mainWindow.getActivar_tecla() == GLFW_KEY_1) {
-			lightsA[0] = true;
-		}
-		if (mainWindow.getActivar_tecla() == GLFW_KEY_2) {
-			lightsA[0] = false;
-		}
-
-		if (mainWindow.getActivar_tecla() == GLFW_KEY_3) {
-			lightsA[1] = true;
-		}
-		if (mainWindow.getActivar_tecla() == GLFW_KEY_4) {
-			lightsA[1] = false;
+		tiempoAcumulado += deltaTime;
+		if (tiempoAcumulado >= intervaloCambio) {
+			tiempoAcumulado = 0.0f;
+			indiceInicio++;
+			if (indiceInicio > (int)offsets.size() - letrasVisibles)
+				indiceInicio = 0;
 		}
 
-		if (lightsA[0] && !lightsA[1]) {
-			shaderList[0].SetPointLights(pointLights1, 1);
-		}
-		if (lightsA[1] && !lightsA[0]) {
-			shaderList[0].SetPointLights(pointLights2, 1);
-		}
-		if (lightsA[0] && lightsA[1]) {
-			shaderList[0].SetPointLights(pointLights3, pointLightCount);
-		}
-		if (!lightsA[0] && !lightsA[1]) {
-			shaderList[0].SetPointLights(pointLights3, 0);
-		}
-
-		if (mainWindow.getActivar_tecla() == GLFW_KEY_Y) {
-			shaderList[0].SetSpotLights(spotLights2, spotLightCount - 1);
-			avanza = false;
+		// Abrir/cerrar con tecla O 
+		if (mainWindow.getsKeys()[GLFW_KEY_O]) {
+			if (!teclaOPresionada) {
+				abierta = !abierta;
+				teclaOPresionada = true;
+			}
 		}
 		else {
-			shaderList[0].SetSpotLights(spotLights1, spotLightCount - 1);
-			avanza = true;
+			teclaOPresionada = false;
 		}
 
-		glm::mat4 model(1.0);
-		glm::mat4 modelaux(1.0);
-		glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
+		// Animación 
+		float targetAng = abierta ? -90.0f : 0.0f;
+		if (fabs(ang - targetAng) > 0.1f) {
 
+			float step = vel * deltaTime / 10;
+			if (ang < targetAng) ang = std::min(ang + step, targetAng);
+			else ang = std::max(ang - step, targetAng);
+		}
+
+
+		// Animación de Puerta Derecha con tecla P
+		if (mainWindow.getsKeys()[GLFW_KEY_P]) {
+			if (!teclaPPresionada && !puertaDerechaAnimando) {
+				puertaDerechaAnimando = true;
+				teclaPPresionada = true;
+				if (!puertaDerechaAbierta) {
+					fase = 1;
+				}
+				else {
+					fase = 3;
+				}
+				progresoAnim = 0.0f;
+			}
+		}
+		else {
+			teclaPPresionada = false;
+		}
+
+		// Lógica de movimiento de la puerta 
+		if (puertaDerechaAnimando) {
+			progresoAnim += deltaTime / 20;
+			float t = progresoAnim / duracionFase;
+			if (fase == 1) {
+				puertaDerechaPos.z = glm::min(t, 1.0f) * 0.5f;
+				if (t >= 1.0f) { fase = 2; progresoAnim = 0.0f; }
+			}
+			else if (fase == 2) {
+				puertaDerechaPos = glm::vec3(glm::min(t, 1.0f) * 4.0f, 0.0f, 1.0f);
+				if (t >= 1.0f) {
+					puertaDerechaAnimando = false;
+					puertaDerechaAbierta = true;
+					fase = 0;
+				}
+			}
+			else if (fase == 3) {
+				puertaDerechaPos = glm::vec3((1.0f - glm::min(t, 1.0f)) * 4.0f, 0.0f, 1.0f);
+				if (t >= 1.0f) { fase = 4; progresoAnim = 0.0f; }
+			}
+			else if (fase == 4) {
+				puertaDerechaPos.z = (1.0f - glm::min(t, 1.0f)) * 0.5f;
+				if (t >= 1.0f) {
+					puertaDerechaAnimando = false;
+					puertaDerechaAbierta = false;
+					fase = 0;
+				}
+			}
+		}
+
+		// Animacion del Dado con la tecla I
+		if (mainWindow.getsKeys()[GLFW_KEY_I]) {
+			if (!teclaIPresionada) {
+				teclaIPresionada = true;
+				if (!dadoAnimando && !dadoEnSuelo) {
+					dadoAnimando = true;
+					velDado = glm::vec3(0.0f, 0.0f, 0.0f);
+					rotDadoActual = glm::vec3(0.0f);
+					rotVelocidad = glm::vec3(
+						180.0f + rand() % 90,
+						180.0f + rand() % 90,
+						180.0f + rand() % 90
+					);
+					caraDado = rand() % 9;
+				}
+				else if (dadoEnSuelo) {
+					dadoEnSuelo = false;
+					dadoAnimando = false;
+					posDado = glm::vec3(5.0f, 10.0f, -5.0f);
+					velDado = glm::vec3(0.0f);
+					rotDadoActual = glm::vec3(0.0f);
+				}
+			}
+		}
+		else {
+			teclaIPresionada = false;
+		}
+
+		// Salto de Pelota (Lógica de Tecla)
+		if (mainWindow.getsKeys()[GLFW_KEY_J]) {
+			if (!teclaJPresionada && !pelotaSaltando) {
+				teclaJPresionada = true;
+				pelotaSaltando = true;
+				pelotaVelocidadY = fuerzaSalto;
+			}
+		}
+		else {
+			teclaJPresionada = false;
+		}
+
+
+		// Actualizacion del movimiento y rotacion (Dado)
+		if (dadoAnimando) {
+			// aplicar gravedad
+			velDado.y += gravedad * deltaTime;
+			posDado += velDado * deltaTime;
+
+			// rotación continua en tres ejes
+			rotDadoActual += rotVelocidad * deltaTime;
+
+			// detener al tocar el suelo
+			if (posDado.y <= 0.5f) {
+				posDado.y = 0.5f;
+				dadoAnimando = false;
+				dadoEnSuelo = true;
+			}
+		}
+
+		// Salto de Pelota
+		if (pelotaSaltando) {
+			// Aplicar la gravedad 
+			pelotaVelocidadY += gravedad * deltaTime;
+			// Mover la pelota
+			pelotaPosBaseY += pelotaVelocidadY * deltaTime;
+
+			// Comprobar si tocó el suelo
+			if (pelotaPosBaseY <= -0.5f) {
+				pelotaPosBaseY = -0.5f;
+				pelotaSaltando = false;
+				pelotaVelocidadY = 0.0f;
+			}
+		}
+
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(30.0f, 1.0f, 30.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		pisoTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh();
+		meshList[2]->RenderMesh(); // piso
 
-
-		//Piramide Chichen
+		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
+		//Agave ¿qué sucede si lo renderizan antes del coche y de la pista?
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(180.5f, -1.5f, 180.0f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		//blending: transparencia o traslucidez
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		AgaveTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[3]->RenderMesh();
+
+
+		/*
+		* Arco con letrero
+		*/
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -1.5f, -2.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelaux = model;
+
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
+		Marco.UseTexture();
+		Marco_M.RenderModel(); // modelo de arco
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		// Error de sintaxis original corregido
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
+		Letrero_M.RenderModel(); // letrero blanco
+
+
+		glm::mat4 letraModel = glm::mat4(1.0f);
+		letraModel = glm::rotate(letraModel, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.5f, 2.0f, 2.0f));
+		AdvTime_FontTexture.UseTexture();
+
+		for (int i = 0; i < letrasVisibles; i++) {
+
+			int idx = (indiceInicio + i) % offsets.size();
+
+			glm::vec2 toffset = offsets[idx];
+			glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+
+			glm::mat4 letraModel = glm::mat4(1.0f);
+			letraModel = glm::rotate(letraModel, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			float startX = basePos.x + (letrasVisibles - 1) * separacion;
+			letraModel = glm::translate(letraModel,
+				glm::vec3(startX - i * separacion, basePos.y, basePos.z));
+
+			letraModel = glm::scale(letraModel, escalaLetras);
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(letraModel));
+
+			meshList[4]->RenderMesh();
+		}
+
+		//Puertas
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-3.3f, 0.0f, 4.7f));
+		model = glm::rotate(model, -ang * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
+		Puerta.UseTexture();
+		PuertaIzquierda_M.RenderModel();
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(puertaDerechaPos.x, puertaDerechaPos.z, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
+		Puerta.UseTexture();
+		PuertaDerecha_M.RenderModel();
+
+		// Renderizar Juego Pelota 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(28.5f, -1.5f, 15.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.8f, 1.8f, 1.8f));
+		model = glm::scale(model, glm::vec3(13.0f, 13.0f, 13.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Juego_Pelota_Texture.UseTexture();
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PiramideT_M.RenderModel();
-
-		//PiramideSol
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(-180.0f, -1.0f, -180.0f));
-		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PiramideS_M.RenderModel();
-
-		//JuegoPelota
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(180.0f, -1.5f, -180.0f));
-		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(14.0f, 14.0f, 14.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
 		Juego_Pelota_Texture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Juego_Pelota_M.RenderModel();
 
-		//Globo
+		// Renderizar Pelota 
+
+		// CALCULAR POSICIÓN
+		float pelotaBaseX = 28.5f; // Centro del pasillo 
+		float pelotaBaseZ = 15.0f;  // Centro del pasillo 
+
+		// Parámetros de animación
+		float pelotaAmplitud = 25.0f; // Límite del va y ven
+		float pelotaVelocidad = 0.8f;
+		float pelotaOffsetZ = glm::sin(glfwGetTime() * pelotaVelocidad) * pelotaAmplitud;
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 50.5f, -180.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(14.0f, 14.0f, 14.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Globo_M.RenderModel();
+		model = glm::translate(model, glm::vec3(pelotaBaseX, pelotaPosBaseY, pelotaBaseZ + pelotaOffsetZ));
 
-		//Chozas
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(glm::vec2(0.0f)));
+
+		// RENDERIZAR EL MODELO
+		PiedraTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Piedra_M.RenderModel();
+
+		//dado
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.5f, 1.5f, 1.5f));
+		model = glm::translate(model, posDado);
+		model = glm::rotate(model, glm::radians(40.0f), glm::vec3(1, 0, 0));
+		model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 0, 1));
+
+
+		if (dadoAnimando) {
+			model = glm::rotate(model, glm::radians(rotDadoActual.x), glm::vec3(1, 0, 0));
+			model = glm::rotate(model, glm::radians(rotDadoActual.y), glm::vec3(0, 1, 0));
+			model = glm::rotate(model, glm::radians(rotDadoActual.z), glm::vec3(0, 0, 1));
+		}
+		else if (dadoEnSuelo) {
+			switch (caraDado) {
+			case 0: break;
+			case 1: model = glm::rotate(model, glm::radians(80.0f), glm::vec3(0, 1, 0));
+				model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1));
+				break;
+			case 2: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0)); break;
+			case 3: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
+				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
+				break;
+			case 4: model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
+				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
+				break;
+			case 5: model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1)); break;
+			case 6: model = glm::rotate(model, glm::radians(360.0f), glm::vec3(0, 1, 0)); break;
+			case 7: model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0, 1, 0)); break;
+			case 8: model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0, 1, 0));
+				model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0, 0, 1));
+				break;
+			}
+		}
+
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Chozas_M.RenderModel();
-
-		//Arboles
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		arbol_M.RenderModel();
-
-		//Banca 
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		BancaG_M.RenderModel();
-
-		//BancaT
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		BancaT_M.RenderModel();
-
-		//Kiosco
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Kiosco_M.RenderModel();
-
-		//Pillar
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Pillar_M.RenderModel();
-
-
-		//Ring
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Ring_M.RenderModel();
-
-
-		//Model PisoRing
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PisoRing_M.RenderModel();
-	
-		//Model Cuerdas
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Cuerdas_M.RenderModel();
-		Model Cuerdas_M;
-
-		//Model Coronas
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		Coronas_M.RenderModel();
-		Model Coronas_M;
-
-		//Model EstatuaLuchador
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(45.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		EstatuaLuchador_M.RenderModel();
-		Model EstatuaLuchador_M;
-
-
-		//Calendario
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-180.0f, -0.5f, 180.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		CalendarioA_M.RenderModel();
-		
-		//Modelo base (padre de todos los Mickey)
-		glm::mat4 baseModel = glm::mat4(1.0);
-		baseModel = glm::translate(baseModel, glm::vec3(0.0f, -0.5f, 60.0f));
-		baseModel = glm::rotate(baseModel, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		baseModel = glm::scale(baseModel, glm::vec3(0.2f, 0.2f, 0.2f));
-
-		//Model MickeyC
-		glm::mat4 modelC = baseModel;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelC));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyC_M.RenderModel();
-
-		//Model MickeyT
-		glm::mat4 modelT = baseModel;
-		modelT = glm::translate(modelT, glm::vec3(0.0f, 0.0f, 0.0f)); // igual posición base
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelT));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyT_M.RenderModel();
-
-		//Model MickeyBD
-		glm::mat4 modelBD = baseModel;
-		modelBD = glm::translate(modelBD, glm::vec3(0.0f, 0.0f, 0.0f)); // mismo punto
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBD));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyBD_M.RenderModel();
-
-		//Model MickeyBI
-		glm::mat4 modelBI = baseModel;
-		modelBI = glm::translate(modelBI, glm::vec3(0.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBI));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyBI_M.RenderModel();
-
-		//Model MickeyPD
-		glm::mat4 modelPD = baseModel;
-		modelPD = glm::translate(modelPD, glm::vec3(0.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPD));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyPD_M.RenderModel();
-
-		//Model MickeyPI
-		glm::mat4 modelPI = baseModel;
-		modelPI = glm::translate(modelPI, glm::vec3(0.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPI));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyPI_M.RenderModel();
-
-		
-		//Lampara
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 5.8f, 5.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.006f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lamparaTexture.UseTexture();
-		lampara2Texture.UseTexture();
-		lampara3Texture.UseTexture();
-		lampara4Texture.UseTexture();
-		lampara5Texture.UseTexture();
-		lampara6Texture.UseTexture();
-		lampara_M.RenderModel();
-
-
+		dadoTexture.UseTexture();
+		Dado_M.RenderModel();
+		glDisable(GL_BLEND);
 		glUseProgram(0);
 		mainWindow.swapBuffers();
 	}
