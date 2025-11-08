@@ -53,6 +53,7 @@ std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
 Skybox skybox;
+Skybox skyboxNoche;
 
 // --- Texturas ---
 Texture brickTexture;
@@ -467,16 +468,16 @@ int main()
 	PiedraTexture.LoadTextureA();
 	AdvTime_FontTexture = Texture("Textures/AdvTime_Font.png");
 	AdvTime_FontTexture.LoadTextureA();
-	Marco = Texture("Textures/Corrugated_Metal_Sheet_teendf3q_1K_BaseColor.jpg");
+	Marco = Texture("Textures/Corrugated_Metal_Sheet_teendf3q_1K_BaseColor.png");
 	Marco.LoadTextureA();
-	Puerta = Texture("Textures/Wooden_Log_Wall_udlmecoew_1K_BaseColor.jpg");
+	Puerta = Texture("Textures/Wooden_Log_Wall_udlmecoew_1K_BaseColor.png");
 	Puerta.LoadTextureA();
 
 	// Carga de Modelos 
 	Juego_Pelota_M = Model();
 	Juego_Pelota_M.LoadModel("Models/Juego_Pelota.obj");
 	Pelota_M = Model();
-	Pelota_M.LoadModel("Models/pelota.obj");
+	Pelota_M.LoadModel("Models/pelota.fbx");
 	Piedra_M = Model();
 	Piedra_M.LoadModel("Models/pelota.fbx");
 	PiramideT_M = Model();
@@ -484,7 +485,7 @@ int main()
 	PiramideS_M = Model();
 	PiramideS_M.LoadModel("Models/PiramideSol.obj");
 	lampara_M = Model();
-	lampara_M.LoadModel("Models/lampara.fbx");
+	lampara_M.LoadModel("Models/lampara.obj");
 	Globo_M = Model();
 	Globo_M.LoadModel("Models/globo.obj");
 	Chozas_M = Model();
@@ -570,6 +571,17 @@ int main()
 	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
 	skybox = Skybox(skyboxFaces);
 
+	//Skybox Noche
+	std::vector<std::string> skyboxFacesNoche;
+	skyboxFacesNoche.push_back("Textures/Skybox/posx.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/negx.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/negy.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/posy.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/posz.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/negz.jpg");
+	skyboxNoche = Skybox(skyboxFacesNoche);
+
+
 	// Configuración de Materiales 
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
@@ -624,8 +636,13 @@ int main()
 	float velocidadCaminata = 8.0f;
 
 	// Variable para el modo de cámara
-	bool camara3raPersona = false; 
-	bool teclaVPresionada = false; 
+	bool camara3raPersona = false;
+	bool teclaVPresionada = false;
+
+	//Control Dia y Noche
+	float cicloTimer = 0.0f;
+	float cicloDuracion = 60.0f; 
+	float tiempoDelDia = 0.0f;
 
 
 	while (!mainWindow.getShouldClose())
@@ -637,9 +654,9 @@ int main()
 		glfwPollEvents();
 		if (!camara3raPersona) {
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		}
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
+		}
 		// Movimiento Manual del Globo  
 		float globoMoveSpeed = 20.0f; // Velocidad de movimiento del globo
 
@@ -839,7 +856,7 @@ int main()
 			if (mainWindow.getsKeys()[GLFW_KEY_W] || mainWindow.getsKeys()[GLFW_KEY_S] ||
 				mainWindow.getsKeys()[GLFW_KEY_A] || mainWindow.getsKeys()[GLFW_KEY_D])
 			{
-				anguloCaminata = glm::sin(glfwGetTime() * velocidadCaminata) * 25.0f; 
+				anguloCaminata = glm::sin(glfwGetTime() * velocidadCaminata) * 25.0f;
 			}
 			else
 			{
@@ -862,12 +879,127 @@ int main()
 		}
 
 
-		// Renderizado 
+		//////// Renderizado 
+		//////glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		//////glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//////skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+
+		//////shaderList[0].UseShader();
+		//////uniformModel = shaderList[0].GetModelLocation();
+		//////uniformProjection = shaderList[0].GetProjectionLocation();
+		//////uniformView = shaderList[0].GetViewLocation();
+		//////uniformEyePosition = shaderList[0].GetEyePositionLocation();
+		//////uniformColor = shaderList[0].getColorLocation();
+		//////uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
+		//////uniformShininess = shaderList[0].GetShininessLocation();
+
+		//////glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		//////// Lógica Cámara en 3ra Persona 
+		//////if (camara3raPersona) {
+		//////	glm::vec3 posDeseada = glm::vec3(avatarPosX, avatarPosY, avatarPosZ) + glm::vec3(0.0f, 8.0f, 20.0f);
+		//////	glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
+		//////	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f))));
+		//////}
+		//////else {
+		//////	// Camara normal
+		//////	glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		//////}
+
+		//////glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+
+		//////// Configuración de Luces
+		//////glm::vec3 lowerLight = camera.getCameraPosition();
+		//////lowerLight.y -= 0.3f;
+		//////spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+		//////shaderList[0].SetDirectionalLight(&mainLight);
+		//////shaderList[0].SetPointLights(pointLights, pointLightCount);
+		//////shaderList[0].SetSpotLights(spotLights, spotLightCount);
+
+
+		cicloTimer += deltaTime;
+		if (cicloTimer > cicloDuracion) {
+			cicloTimer -= cicloDuracion; // Reinicia el ciclo
+		}
+		// tiempoDelDia será un valor que va de 0.0 a 1.0
+		tiempoDelDia = cicloTimer / cicloDuracion;
+
+		// Calculamos un ángulo para el sol (0 a 360 grados)
+		float anguloSol = tiempoDelDia * 360.0f;
+		float anguloSolRad = glm::radians(anguloSol);
+
+		// ACTUALIZAR LUCES 
+		float intensidadSol;
+		float intensidadLamparas;
+
+		float duracionTransicion = 0.1f; 
+		float t_atardecer_inicio = 0.5f - (duracionTransicion / 2.0f);
+		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);   
+		float t_amanecer_inicio = 1.0f - (duracionTransicion / 2.0f); 
+
+		if (tiempoDelDia < t_atardecer_inicio) 
+		{
+			intensidadSol = 1.0f;
+			intensidadLamparas = 0.0f;
+		}
+		else if (tiempoDelDia < t_atardecer_fin) 
+		{
+			float progreso = (tiempoDelDia - t_atardecer_inicio) / duracionTransicion;
+			intensidadSol = glm::mix(1.0f, 0.15f, progreso); 
+			intensidadLamparas = glm::mix(0.0f, 1.0f, progreso); 
+		}
+		else if (tiempoDelDia < t_amanecer_inicio) 
+		{
+			intensidadSol = 0.15f;
+			intensidadLamparas = 1.0f;
+		}
+		else 
+		{
+			float progreso = (tiempoDelDia - t_amanecer_inicio) / duracionTransicion;
+
+			intensidadSol = glm::mix(0.15f, 1.0f, progreso); 
+			intensidadLamparas = glm::mix(1.0f, 0.0f, progreso); 
+		}
+
+
+		// Actualiza el Sol 
+		mainLight.SetColor(intensidadSol, intensidadSol, intensidadSol);
+		mainLight.SetDiffuseIntensity(intensidadSol);
+		mainLight.SetAmbientIntensity(intensidadSol * 0.2f);
+		mainLight.SetDirection(glm::vec3(sin(anguloSolRad), -cos(anguloSolRad), 0.0f));
+
+		// Actualiza las Lámparas (pointLights) 
+		pointLights[0].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[0].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		// RENDERIZADO 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+		// DIBUJAR EL SKYBOX 
+		//
+		glm::mat4 viewMatrixSkybox;
+		if (camara3raPersona) {
+			float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
+			float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
+			glm::vec3 posDeseada = glm::vec3(avatarPosX + camOffsetX, avatarPosY + 8.0f, avatarPosZ + camOffsetZ);
+			glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
+			viewMatrixSkybox = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else {
+			viewMatrixSkybox = camera.calculateViewMatrix();
+		}
 
+		// Decidimos qué skybox dibujar
+		if (tiempoDelDia > 0.5) {
+			skyboxNoche.DrawSkybox(viewMatrixSkybox, projection);
+		}
+		else {
+			skybox.DrawSkybox(viewMatrixSkybox, projection);
+		}
+
+
+		// CONFIGURACIÓN DEL SHADER 
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
@@ -878,29 +1010,48 @@ int main()
 		uniformShininess = shaderList[0].GetShininessLocation();
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		// Lógica Cámara en 3ra Persona 
+
+		// CÁLCULO DE MATRIZ DE VISTA Y POSICIÓN DE OJO 
+
+		glm::mat4 viewMatrix;
+		glm::vec3 eyePosition;
 		if (camara3raPersona) {
-			glm::vec3 posDeseada = glm::vec3(avatarPosX, avatarPosY, avatarPosZ) + glm::vec3(0.0f, 8.0f, 20.0f);
+			float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
+			float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
+			glm::vec3 posDeseada = glm::vec3(avatarPosX + camOffsetX, avatarPosY + 8.0f, avatarPosZ + camOffsetZ);
 			glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f))));
+			viewMatrix = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+			eyePosition = posDeseada;
 		}
 		else {
-			// Camara normal
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+			viewMatrix = camera.calculateViewMatrix();
+			eyePosition = camera.getCameraPosition();
 		}
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniform3f(uniformEyePosition, eyePosition.x, eyePosition.y, eyePosition.z);
 
-		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
-		// Configuración de Luces
+		// CONFIGURACIÓN FINAL DE LUCES 
+
 		glm::vec3 lowerLight = camera.getCameraPosition();
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
-
 		// Renderizado de la Escena 
+
+		float radioOrbita = 800.0f; // Qué tan lejos está el sol
+		float solPosX = sin(anguloSolRad) * radioOrbita;
+		float solPosY = -cos(anguloSolRad) * radioOrbita; // El sol sube y baja
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(solPosX, solPosY, -300.0f)); 
+		model = glm::scale(model, glm::vec3(20.0f, 20.0f, 20.0f)); 
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Piedra_M.RenderModel(); // Reusamos el modelo de la pelota
 
 		// Arco con Letrero
 		model = glm::mat4(1.0);
@@ -1043,52 +1194,434 @@ int main()
 
 		// Arboles
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(210.0f, -0.5f, -210.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(190.0f, -0.5f, -165.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		arbol_M.RenderModel();
 
-		// Banca
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(170.0f, -0.5f, -115.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(190.0f, -0.5f, -75.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(190.0f, -0.5f, -25.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(170.0f, -0.5f, -5.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(190.0f, -0.5f, -0.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-100.0f, -0.5f, 135.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-100.0f, -0.5f, 185.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-100.0f, -0.5f, 205.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-90.0f, -0.5f, 225.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-140.0f, -0.5f, 205.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-200.0f, -0.5f, 225.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-220.0f, -0.5f, 35.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-240.0f, -0.5f, 95.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-200.0f, -0.5f, 15.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-150.0f, -0.5f, 15.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		arbol_M.RenderModel();
+
+
+		// Banca
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(10.0f, -0.5f, -60.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -0.5f, -60.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(10.0f, -0.5f, -120.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -0.5f, -120.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(10.0f, -0.5f, -150.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -0.5f, -150.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(10.0f, -0.5f, -180.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -0.5f, -180.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(10.0f, -0.5f, -240.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-10.0f, -0.5f, -240.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaG_M.RenderModel();
+
 
 		// BancaT
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(30.0f, -0.5f, 240.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-30.0f, -0.5f, 240.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(30.0f, -0.5f, 210.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-30.0f, -0.5f, 210.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(30.0f, -0.5f, 180.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-30.0f, -0.5f, 180.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(30.0f, -0.5f, 150.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-30.0f, -0.5f, 150.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(30.0f, -0.5f, 120.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		BancaT_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-30.0f, -0.5f, 120.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		BancaT_M.RenderModel();
 
 		// Kiosco
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, -90.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Kiosco_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, -210.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Kiosco_M.RenderModel();
 
 		// Pillar
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		model = glm::translate(model, glm::vec3(3.0f, -0.5f, -50.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Pillar_M.RenderModel();
 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-3.0f, -0.5f, -50.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(3.0f, -0.5f, -110.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-3.0f, -0.5f, -110.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(3.0f, -0.5f, -170.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-3.0f, -0.5f, -170.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(3.0f, -0.5f, -230.0f));
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-3.0f, -0.5f, -230.0f));
+		model = glm::rotate(model, glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.2f, 5.2f, 5.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Pillar_M.RenderModel();
+
+
+
+		//	Lampara
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 120.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		lampara_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 150.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		lampara_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 180.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		lampara_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 210.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		lampara_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 240.0f));
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		lampara_M.RenderModel();
+
+
 		// Ring
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 12.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1097,7 +1630,7 @@ int main()
 
 		// PisoRing
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 12.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1106,7 +1639,7 @@ int main()
 
 		// Cuerdas
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 12.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1115,7 +1648,7 @@ int main()
 
 		// Coronas
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(0.0f, -0.5f, 12.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1124,9 +1657,17 @@ int main()
 
 		// EstatuaLuchador
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(45.0f, -0.5f, 60.0f));
+		model = glm::translate(model, glm::vec3(32.0f, -0.5f, 32.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		EstatuaLuchador_M.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-32.0f, -0.5f, 32.0f));
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.2f, 4.2f, 2.2f));
+		model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		EstatuaLuchador_M.RenderModel();
@@ -1147,6 +1688,7 @@ int main()
 					MICKEY MOUSE
 		*/	//									//
 
+
 		// Matriz Padre 
 		// Posición general del avatar 
 		glm::mat4 modelAvatar = glm::mat4(1.0);
@@ -1158,7 +1700,7 @@ int main()
 		glm::mat4 modelTorso = modelAvatar;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTorso));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyT_M.RenderModel(); 
+		MickeyT_M.RenderModel();
 
 		// Cabeza (Hijo del Torso) 
 		glm::mat4 modelCabeza = modelTorso;
@@ -1183,7 +1725,7 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		MickeyBI_M.RenderModel();
 
-		// --- 5. Pierna Derecha (Hijo del Torso) ---
+		// Pierna Derecha (Hijo del Torso) ---
 		glm::mat4 modelPiernaD = modelTorso;
 		modelPiernaD = glm::rotate(modelPiernaD, glm::radians(-anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelPiernaD = glm::translate(modelPiernaD, glm::vec3(-1.0f, 0.0f, 0.0f));
@@ -1191,7 +1733,7 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		MickeyPD_M.RenderModel();
 
-		// --- 6. Pierna Izquierda (Hijo del Torso) ---
+		// Pierna Izquierda (Hijo del Torso) ---
 		glm::mat4 modelPiernaI = modelTorso;
 		modelPiernaI = glm::rotate(modelPiernaI, glm::radians(anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelPiernaI = glm::translate(modelPiernaI, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -1271,21 +1813,6 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPIFinn));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		FinnPI_M.RenderModel();
-
-		// Lampara
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, 5.8f, 5.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.006f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		lamparaTexture.UseTexture();
-		lampara2Texture.UseTexture();
-		lampara3Texture.UseTexture();
-		lampara4Texture.UseTexture();
-		lampara5Texture.UseTexture();
-		lampara6Texture.UseTexture();
-		lampara_M.RenderModel();
 
 		// --- 5.5. Finalización del Frame ---
 		glUseProgram(0);
