@@ -188,8 +188,8 @@ float jakeAnimTimer = 0.0f;
 float jakeAnguloGolpe = 0.0f;
 float pelotaOffset = 0.0f;
 float pelotaDireccion = 1.0f;
-bool avanza = true; 
-bool lightsA[2] = { false, false }; 
+bool avanza = true;
+bool lightsA[2] = { false, false };
 
 // 
 // KEYFRAMES (Globo)
@@ -262,7 +262,7 @@ void animate(float& posX, float& posY, float& posZ, float& rotY,
 
 		// Frames actual y siguiente
 		int currentFrame = frameIndex;
-		int nextFrame = frameIndex + 1; 
+		int nextFrame = frameIndex + 1;
 
 		// Interpolamos la posición y rotación entre el frame actual y el siguiente
 		posX = interpolation(keyframes[currentFrame].posX, keyframes[nextFrame].posX, playIndex);
@@ -636,7 +636,7 @@ int main()
 	float velocidadCaminata = 8.0f;
 
 	// Variables de Mickey 
-	float avatarPosX = 2.5f;   
+	float avatarPosX = 2.5f;
 	float avatarPosY = -0.5f;
 	float avatarPosZ = 280.0f;
 	float avatarRotY = 0.0f;
@@ -658,7 +658,7 @@ int main()
 
 	//Control Dia y Noche
 	float cicloTimer = 0.0f;
-	float cicloDuracion = 120.0f; 
+	float cicloDuracion = 120.0f;
 	float tiempoDelDia = 0.0f;
 
 
@@ -856,7 +856,7 @@ int main()
 				// Tecla V (3ra Persona ON/OFF)
 		if (mainWindow.getsKeys()[GLFW_KEY_V] && !teclaVPresionada) {
 			teclaVPresionada = true;
-			camara3raPersona = !camara3raPersona; 
+			camara3raPersona = !camara3raPersona;
 		}
 		if (!mainWindow.getsKeys()[GLFW_KEY_V]) {
 			teclaVPresionada = false;
@@ -917,16 +917,18 @@ int main()
 					if (mainWindow.getsKeys()[GLFW_KEY_W]) { finnPosX += forward.x * avatarMoveSpeed * deltaTime; finnPosZ += forward.z * avatarMoveSpeed * deltaTime; }
 					if (mainWindow.getsKeys()[GLFW_KEY_S]) { finnPosX -= forward.x * avatarMoveSpeed * deltaTime; finnPosZ -= forward.z * avatarMoveSpeed * deltaTime; }
 					if (mainWindow.getsKeys()[GLFW_KEY_A]) { finnPosX -= right.x * avatarMoveSpeed * deltaTime; finnPosZ -= right.z * avatarMoveSpeed * deltaTime; }
-					if (mainWindow.getsKeys()[GLFW_KEY_D]) { finnPosX += right.x * avatarMoveSpeed * deltaTime; finnPosZ += right.z * avatarMoveSpeed * deltaTime; 
+					if (mainWindow.getsKeys()[GLFW_KEY_D]) {
+						finnPosX += right.x * avatarMoveSpeed * deltaTime; finnPosZ += right.z * avatarMoveSpeed * deltaTime;
+					}
 				}
 				break;
-			}
-		}
+			} // <-- SINTAXIS CORREGIDA: Esta llave cierra el SWITCH
+		} // <-- SINTAXIS CORREGIDA: Esta llave cierra el "if (camara3raPersona)"
 
 
 		cicloTimer += deltaTime;
 		if (cicloTimer > cicloDuracion) {
-			cicloTimer -= cicloDuracion; 
+			cicloTimer -= cicloDuracion;
 		}
 		tiempoDelDia = cicloTimer / cicloDuracion;
 		float anguloSol = tiempoDelDia * 360.0f;
@@ -936,33 +938,33 @@ int main()
 		float intensidadSol;
 		float intensidadLamparas;
 
-		float duracionTransicion = 0.1f; 
+		float duracionTransicion = 0.1f;
 		float t_atardecer_inicio = 0.5f - (duracionTransicion / 2.0f);
-		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);   
-		float t_amanecer_inicio = 1.0f - (duracionTransicion / 2.0f); 
+		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);
+		float t_amanecer_inicio = 1.0f - (duracionTransicion / 2.0f);
 
-		if (tiempoDelDia < t_atardecer_inicio) 
+		if (tiempoDelDia < t_atardecer_inicio)
 		{
 			intensidadSol = 1.0f;
 			intensidadLamparas = 0.0f;
 		}
-		else if (tiempoDelDia < t_atardecer_fin) 
+		else if (tiempoDelDia < t_atardecer_fin)
 		{
 			float progreso = (tiempoDelDia - t_atardecer_inicio) / duracionTransicion;
-			intensidadSol = glm::mix(1.0f, 0.15f, progreso); 
-			intensidadLamparas = glm::mix(0.0f, 1.0f, progreso); 
+			intensidadSol = glm::mix(1.0f, 0.15f, progreso);
+			intensidadLamparas = glm::mix(0.0f, 1.0f, progreso);
 		}
-		else if (tiempoDelDia < t_amanecer_inicio) 
+		else if (tiempoDelDia < t_amanecer_inicio)
 		{
 			intensidadSol = 0.15f;
 			intensidadLamparas = 1.0f;
 		}
-		else 
+		else
 		{
 			float progreso = (tiempoDelDia - t_amanecer_inicio) / duracionTransicion;
 
-			intensidadSol = glm::mix(0.15f, 1.0f, progreso); 
-			intensidadLamparas = glm::mix(1.0f, 0.0f, progreso); 
+			intensidadSol = glm::mix(0.15f, 1.0f, progreso);
+			intensidadLamparas = glm::mix(1.0f, 0.0f, progreso);
 		}
 
 
@@ -1090,8 +1092,8 @@ int main()
 		float solPosX = sin(anguloSolRad) * radioOrbita;
 		float solPosY = -cos(anguloSolRad) * radioOrbita; // El sol sube y baja
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(solPosX, solPosY, -300.0f)); 
-		model = glm::scale(model, glm::vec3(20.0f, 20.0f, 20.0f)); 
+		model = glm::translate(model, glm::vec3(solPosX, solPosY, -300.0f));
+		model = glm::scale(model, glm::vec3(20.0f, 20.0f, 20.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Piedra_M.RenderModel(); // Reuso del modelo de la pelota
@@ -1750,7 +1752,7 @@ int main()
 		modelCabeza = glm::translate(modelCabeza, glm::vec3(0.0f, -2.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabeza));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyC_M.RenderModel(); 
+		MickeyC_M.RenderModel();
 
 		// Brazo Derecho (Hijo del Torso) 
 		glm::mat4 modelBrazoD = modelTorso;
@@ -1786,11 +1788,11 @@ int main()
 
 
 		/*	//									//
-						
-						
+
+
 			/////		PEACH				//////
-		
-		
+
+
 		*/	//									//
 
 
@@ -1808,103 +1810,104 @@ int main()
 
 		// Cabeza (Hijo del Torso)
 		glm::mat4 modelCabezaPeach = modelTorsoPeach;
-		modelCabezaPeach = glm::translate(modelCabezaPeach, glm::vec3(0.0f, 0.0f, 0.0f)); 
+		modelCabezaPeach = glm::translate(modelCabezaPeach, glm::vec3(0.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabezaPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachC_M.RenderModel();
 
 		// Brazo Derecho (Hijo del Torso)
 		glm::mat4 modelBrazoDPeach = modelTorsoPeach;
-		modelBrazoDPeach = glm::translate(modelBrazoDPeach, glm::vec3(0.0f, 0.0f, 0.0f)); 
+		modelBrazoDPeach = glm::translate(modelBrazoDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoDPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachBD_M.RenderModel();
 
 		// Brazo Izquierdo (Hijo del Torso)
 		glm::mat4 modelBrazoIPeach = modelTorsoPeach;
-		modelBrazoIPeach = glm::translate(modelBrazoIPeach, glm::vec3(0.0f, 0.0f, 0.0f)); 
+		modelBrazoIPeach = glm::translate(modelBrazoIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoIPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachBI_M.RenderModel();
 
 		// Pierna Derecha (Hijo del Torso)
 		glm::mat4 modelPiernaDPeach = modelTorsoPeach;
-		modelPiernaDPeach = glm::translate(modelPiernaDPeach, glm::vec3(0.0f, 0.0f, 0.0f)); 
+		modelPiernaDPeach = glm::translate(modelPiernaDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaDPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachPD_M.RenderModel();
 
-		// Pierna Izquierda (Hijo del Torso)
-		glm::mat4 modelPiernaIPeach = modelTorsoPeach;
-		modelPiernaIPeach = glm::translate(modelPiernaIPeach, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIPeach));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PeachPI_M.RenderModel();
-		
 
-
-		/*	//									//
-
-
-			/////		FINN				//////
-
-
-		*/	//									//
-		
-
-		// Matriz Padre (Posición general en el mundo)
-		glm::mat4 modelAvatarFinn = glm::mat4(1.0);
-		modelAvatarFinn = glm::translate(modelAvatarFinn, glm::vec3(finnPosX, finnPosY, finnPosZ));
-		modelAvatarFinn = glm::rotate(modelAvatarFinn, glm::radians(finnRotY), glm::vec3(0.0f, 1.0f, 0.0f));
-		modelAvatarFinn = glm::scale(modelAvatarFinn, glm::vec3(0.9f, 0.9f, 0.9f));
-
-		// Torso (Padre de todas las partes)
-		glm::mat4 modelTorsoFinn = modelAvatarFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTorsoFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnT_M.RenderModel();
-
-		// Cabeza (Hijo del Torso)
-		glm::mat4 modelCabezaFinn = modelTorsoFinn;
-		modelCabezaFinn = glm::translate(modelCabezaFinn, glm::vec3(0.0f, 0.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabezaFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnC_M.RenderModel();
-
-		// Brazo Derecho (Hijo del Torso)
-		glm::mat4 modelBrazoDFinn = modelTorsoFinn;
-		modelBrazoDFinn = glm::translate(modelBrazoDFinn, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoDFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnBD_M.RenderModel();
-
-		// Brazo Izquierdo (Hijo del Torso)
-		glm::mat4 modelBrazoIFinn = modelTorsoFinn;
-		modelBrazoIFinn = glm::translate(modelBrazoIFinn, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoIFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnBI_M.RenderModel();
-
-		// Pierna Derecha (Hijo del Torso)
-		glm::mat4 modelPiernaDFinn = modelTorsoFinn;
-		modelPiernaDFinn = glm::translate(modelPiernaDFinn, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaDFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnPD_M.RenderModel();
-
-		// Pierna Izquierda (Hijo del Torso)
-		glm::mat4 modelPiernaIFinn = modelTorsoFinn;
-		modelPiernaIFinn = glm::translate(modelPiernaIFinn, glm::vec3(0.0f, 0.0f, 0.0f)); 
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnPI_M.RenderModel();
+			// Pierna Izquierda (Hijo del Torso)
+			glm::mat4 modelPiernaIPeach = modelTorsoPeach;
+			modelPiernaIPeach = glm::translate(modelPiernaIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIPeach));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			PeachPI_M.RenderModel();
 
 
 
-		// Finalización del Frame 
-		glUseProgram(0);
-		mainWindow.swapBuffers();
+			/*	//									//
+
+
+				/////		FINN				//////
+
+
+			*/	//									//
+
+
+			// Matriz Padre (Posición general en el mundo)
+			glm::mat4 modelAvatarFinn = glm::mat4(1.0);
+			modelAvatarFinn = glm::translate(modelAvatarFinn, glm::vec3(finnPosX, finnPosY, finnPosZ));
+			modelAvatarFinn = glm::rotate(modelAvatarFinn, glm::radians(finnRotY), glm::vec3(0.0f, 1.0f, 0.0f));
+			modelAvatarFinn = glm::scale(modelAvatarFinn, glm::vec3(0.9f, 0.9f, 0.9f));
+
+			// Torso (Padre de todas las partes)
+			glm::mat4 modelTorsoFinn = modelAvatarFinn;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTorsoFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnT_M.RenderModel();
+
+			// Cabeza (Hijo del Torso)
+			glm::mat4 modelCabezaFinn = modelTorsoFinn;
+			modelCabezaFinn = glm::translate(modelCabezaFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabezaFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnC_M.RenderModel();
+
+			// Brazo Derecho (Hijo del Torso)
+			glm::mat4 modelBrazoDFinn = modelTorsoFinn;
+			modelBrazoDFinn = glm::translate(modelBrazoDFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoDFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnBD_M.RenderModel();
+
+			// Brazo Izquierdo (Hijo del Torso)
+			glm::mat4 modelBrazoIFinn = modelTorsoFinn;
+			modelBrazoIFinn = glm::translate(modelBrazoIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoIFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnBI_M.RenderModel();
+
+			// Pierna Derecha (Hijo del Torso)
+			glm::mat4 modelPiernaDFinn = modelTorsoFinn;
+			modelPiernaDFinn = glm::translate(modelPiernaDFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaDFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnPD_M.RenderModel();
+
+			// Pierna Izquierda (Hijo del Torso)
+			glm::mat4 modelPiernaIFinn = modelTorsoFinn;
+			modelPiernaIFinn = glm::translate(modelPiernaIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnPI_M.RenderModel();
+
+
+			// Finalización del Frame 
+			glUseProgram(0);
+			mainWindow.swapBuffers();
+		}
+
+		return 0;
 	}
 
-	return 0;
-}
