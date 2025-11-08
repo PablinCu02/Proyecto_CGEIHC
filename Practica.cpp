@@ -292,6 +292,10 @@ bool teclaKPresionada = false;
 bool teclaGPresionada = false;
 bool teclaCPresionada = false;
 
+// --- Variables para Spotlight con Teclado 
+bool spotLights_On = true; 
+bool teclaTPresionada = false;
+
 
 //funcion de calculo de normales por promedio de vertices 
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
@@ -570,12 +574,12 @@ int main()
 
 	//Skybox Noche
 	std::vector<std::string> skyboxFacesNoche;
-	skyboxFacesNoche.push_back("Textures/Skybox/posx.jpg");
-	skyboxFacesNoche.push_back("Textures/Skybox/negx.jpg");
-	skyboxFacesNoche.push_back("Textures/Skybox/negy.jpg");
-	skyboxFacesNoche.push_back("Textures/Skybox/posy.jpg");
-	skyboxFacesNoche.push_back("Textures/Skybox/posz.jpg");
-	skyboxFacesNoche.push_back("Textures/Skybox/negz.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_rt.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_lf.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_dn.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_up.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_bk.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_ft.tga");
 	skyboxNoche = Skybox(skyboxFacesNoche);
 
 
@@ -589,27 +593,44 @@ int main()
 		0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
+pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		0.0f, 1.0f,
 		0.0f, 2.5f, 1.5f,
-		0.3f, 0.2f, 0.1f);
+		1.0f, 0.07f, 0.017f);
 	pointLightCount++;
 
 	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f, // Linterna
-		0.0f, 2.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		5.0f);
-	spotLightCount++;
-	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f, // Fija
-		1.0f, 2.0f,
-		5.0f, 10.0f, 0.0f,
-		0.0f, -5.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		15.0f);
-	spotLightCount++;
+
+
+
+	// Posición de las luces tipo PointLight en las lámparas del camino
+	pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 180.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// LUCES FIJAS (Siempre encendidas de noche)
+	// Lámpara en Z=210
+	pointLights[1] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 210.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// Lámpara en Z=240
+	pointLights[2] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 240.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// Luz cerca de las Chozas
+	pointLights[3] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 60.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
 
 	// Variables Uniform 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
@@ -713,7 +734,7 @@ int main()
 				indiceInicio = 0;
 		}
 
-		// Lógica de Puerta Izquierda (Tecla 'O')
+		// Puerta Izquierda con tecla "O"
 		if (mainWindow.getsKeys()[GLFW_KEY_O]) {
 			if (!teclaOPresionada) {
 				abierta = !abierta;
@@ -730,7 +751,7 @@ int main()
 			else ang = std::max(ang - step, targetAng);
 		}
 
-		// Lógica de Puerta Derecha (Tecla 'P')
+		// Lógica de Puerta Derecha con tecla "P"
 		if (mainWindow.getsKeys()[GLFW_KEY_P]) {
 			if (!teclaPPresionada && !puertaDerechaAnimando) {
 				puertaDerechaAnimando = true;
@@ -764,7 +785,7 @@ int main()
 			}
 		}
 
-		// Lógica de Juego de Pelota (Tecla 'J')
+		// Lógica Juego de Pelota con Tecla "J"
 		if (mainWindow.getsKeys()[GLFW_KEY_J]) {
 			if (!teclaJPresionada) {
 				teclaJPresionada = true;
@@ -862,6 +883,16 @@ int main()
 			teclaVPresionada = false;
 		}
 
+		// Interruptor de Spotlights con letra "T"
+		if (mainWindow.getsKeys()[GLFW_KEY_T] && !teclaTPresionada) {
+			teclaTPresionada = true;
+			spotLights_On = !spotLights_On; // Invierte el estado
+		}
+		if (!mainWindow.getsKeys()[GLFW_KEY_T]) {
+			teclaTPresionada = false;
+		}
+
+
 		// Reseteamos las animaciones
 		anguloCaminataMickey = 0.0f;
 		anguloCaminataPeach = 0.0f;
@@ -922,8 +953,8 @@ int main()
 					}
 				}
 				break;
-			} // <-- SINTAXIS CORREGIDA: Esta llave cierra el SWITCH
-		} // <-- SINTAXIS CORREGIDA: Esta llave cierra el "if (camara3raPersona)"
+			} 
+		} 
 
 
 		cicloTimer += deltaTime;
@@ -934,49 +965,80 @@ int main()
 		float anguloSol = tiempoDelDia * 360.0f;
 		float anguloSolRad = glm::radians(anguloSol);
 
+		float intensidadSol_Difusa;   // Luz directa del sol
+		float intensidadSol_Ambiente; // Luz del cielo 
+
 		// ACTUALIZAR LUCES 
 		float intensidadSol;
 		float intensidadLamparas;
 
-		float duracionTransicion = 0.1f;
-		float t_atardecer_inicio = 0.5f - (duracionTransicion / 2.0f);
-		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);
+		float duracionTransicion = 0.1f; 
+		float t_atardecer_inicio = 0.5f - (duracionTransicion / 2.0f); 
+		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);   
 		float t_amanecer_inicio = 1.0f - (duracionTransicion / 2.0f);
 
-		if (tiempoDelDia < t_atardecer_inicio)
+		if (tiempoDelDia < t_atardecer_inicio) 
 		{
-			intensidadSol = 1.0f;
+			intensidadSol_Difusa = 1.0f;
+			intensidadSol_Ambiente = 0.3f;
 			intensidadLamparas = 0.0f;
 		}
-		else if (tiempoDelDia < t_atardecer_fin)
+		else if (tiempoDelDia < t_atardecer_fin) 
 		{
 			float progreso = (tiempoDelDia - t_atardecer_inicio) / duracionTransicion;
-			intensidadSol = glm::mix(1.0f, 0.15f, progreso);
+			intensidadSol_Difusa = glm::mix(1.0f, 0.15f, progreso);  
+			intensidadSol_Ambiente = glm::mix(0.3f, 0.15f, progreso); 
 			intensidadLamparas = glm::mix(0.0f, 1.0f, progreso);
 		}
-		else if (tiempoDelDia < t_amanecer_inicio)
+		else if (tiempoDelDia < t_amanecer_inicio) 
 		{
-			intensidadSol = 0.15f;
+			intensidadSol_Difusa = 0.15f;
+			intensidadSol_Ambiente = 0.15f; // Luz de noche
 			intensidadLamparas = 1.0f;
 		}
-		else
+		else //transicion de amanecer
 		{
 			float progreso = (tiempoDelDia - t_amanecer_inicio) / duracionTransicion;
-
-			intensidadSol = glm::mix(0.15f, 1.0f, progreso);
+			intensidadSol_Difusa = glm::mix(0.15f, 1.0f, progreso);   
+			intensidadSol_Ambiente = glm::mix(0.15f, 0.3f, progreso); 
 			intensidadLamparas = glm::mix(1.0f, 0.0f, progreso);
 		}
 
 
 		// Actualiza el Sol 
-		mainLight.SetColor(intensidadSol, intensidadSol, intensidadSol);
-		mainLight.SetDiffuseIntensity(intensidadSol);
-		mainLight.SetAmbientIntensity(intensidadSol * 0.2f);
+		mainLight.SetColor(1.0f, 1.0f, 1.0f);
+		mainLight.SetDiffuseIntensity(intensidadSol_Difusa); // brillo del sol
+		mainLight.SetAmbientIntensity(intensidadSol_Ambiente); // uz del cielo
 		mainLight.SetDirection(glm::vec3(sin(anguloSolRad), -cos(anguloSolRad), 0.0f));
 
-		// Actualiza las Lámparas (pointLights) 
+		// Actualizar las Lámparas 
 		pointLights[0].SetDiffuseIntensity(intensidadLamparas);
 		pointLights[0].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[1].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[1].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[2].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[2].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[3].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[3].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		// Control de Lámparas con Teclado 
+		float intensidadLamparasTeclado = 0.0f;
+		if (spotLights_On) { 
+			intensidadLamparasTeclado = 1.0f; // Intensidad de encendido
+		}
+
+		// Aplicamos la intensidad
+		pointLights[1].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[1].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
+
+		pointLights[2].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[2].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
+
+		pointLights[3].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[3].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
 
 		// RENDERIZADO 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
