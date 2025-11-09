@@ -645,7 +645,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 
 
 	// Control de Avatares 
-	bool camara3raPersona = false;
+	int cameraMode = 0;
 	bool teclaVPresionada = false;
 
 	// Switch del ersonaje activo (1=Mickey, 2=Peach, 3=Finn)
@@ -690,11 +690,11 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		lastTime = now;
 
 		glfwPollEvents();
-		if (!camara3raPersona) {
+		if (cameraMode == 0) {
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
-
 		}
+
 		// Movimiento Manual del Globo  
 		float globoMoveSpeed = 20.0f; // Velocidad de movimiento del globo
 
@@ -873,11 +873,10 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 			KeyFrameGlobo, FrameIndexGlobo, playIndexGlobo, playGlobo);
 
 		// Cambio de Cámara y Selección de Avatar 
-
-				// Tecla V (3ra Persona ON/OFF)
+		// Modos de cámara: 0, 1, 2
 		if (mainWindow.getsKeys()[GLFW_KEY_V] && !teclaVPresionada) {
 			teclaVPresionada = true;
-			camara3raPersona = !camara3raPersona;
+			cameraMode = (cameraMode + 1) % 3; 
 		}
 		if (!mainWindow.getsKeys()[GLFW_KEY_V]) {
 			teclaVPresionada = false;
@@ -898,7 +897,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		anguloCaminataPeach = 0.0f;
 		anguloCaminataFinn = 0.0f;
 
-		if (camara3raPersona)
+		if (cameraMode==1)
 		{
 			// Selección de Avatar (Teclas 1, 2, 3) 
 			if (mainWindow.getsKeys()[GLFW_KEY_1]) activeAvatar = 1;
@@ -1047,7 +1046,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		// DIBUJAR EL SKYBOX 
 		//
 		glm::mat4 viewMatrixSkybox;
-		if (camara3raPersona) {
+		if (cameraMode) {
 			float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
 			float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
 			glm::vec3 posDeseada = glm::vec3(avatarPosX + camOffsetX, avatarPosY + 8.0f, avatarPosZ + camOffsetZ);
@@ -1084,14 +1083,15 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		glm::mat4 viewMatrix;
 		glm::vec3 eyePosition;
 
-		// Cámara Única 
-		if (camara3raPersona)
+		// Lógica de Cámara 
+		switch (cameraMode)
 		{
+			// Modo 3ra Persona 
+		case 1:
 			// Elegir a quién seguir
 			switch (activeAvatar)
 			{
-				// Seguir a Mickey 
-			case 1:
+			case 1: // Mickey
 			{
 				float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
 				float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
@@ -1101,9 +1101,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 				eyePosition = posDeseada;
 			}
 			break;
-
-			// Seguir a Peach 
-			case 2:
+			case 2: // Peach
 			{
 				float camOffsetX = sin(glm::radians(peachRotY)) * 20.0f;
 				float camOffsetZ = cos(glm::radians(peachRotY)) * 20.0f;
@@ -1113,9 +1111,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 				eyePosition = posDeseada;
 			}
 			break;
-
-			// Seguir a Finn 
-			case 3:
+			case 3: // Finn
 			{
 				float camOffsetX = sin(glm::radians(finnRotY)) * 20.0f;
 				float camOffsetZ = cos(glm::radians(finnRotY)) * 20.0f;
@@ -1126,11 +1122,24 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 			}
 			break;
 			}
-		}
-		else //Cámara Libre 
+			break;
+
+		case 2:
 		{
+			camera.keyControl(mainWindow.getsKeys(), deltaTime);
+			glm::vec3 pos = camera.getCameraPosition();
+			pos.y = 150.0f; 
+			glm::vec3 target = glm::vec3(pos.x, 0.0f, pos.z);
+
+			viewMatrix = glm::lookAt(pos, target, glm::vec3(0.0f, 0.0f, -1.0f)); 
+			eyePosition = pos;
+		}
+		break;
+
+		default:
 			viewMatrix = camera.calculateViewMatrix();
 			eyePosition = camera.getCameraPosition();
+			break;
 		}
 
 		// Enviamos la matriz al shader
@@ -1138,7 +1147,7 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		glUniform3f(uniformEyePosition, eyePosition.x, eyePosition.y, eyePosition.z);
 
 
-		// CONFIGURACIÓN FINAL DE LUCES 
+		// CONFIGURACIÓN DE LUCES 
 
 		glm::vec3 lowerLight = camera.getCameraPosition();
 		lowerLight.y -= 0.3f;
@@ -1724,6 +1733,8 @@ pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		lampara_M.RenderModel();
+
+
 
 
 		// Ring
