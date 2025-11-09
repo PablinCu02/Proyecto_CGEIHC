@@ -1,6 +1,5 @@
 ﻿/*
 * =================================================================================
-* PRACTICA.CPP (Versión Organizada)
 * COMPUTACIÓN GRÁFICA E INTERACCIÓN HUMANO-COMPUTADORA
 * =================================================================================
 */
@@ -29,14 +28,14 @@
 #include "Model.h"
 #include "Skybox.h"
 
-// --- Headers de Iluminación ---
+// Headers de Iluminación 
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
 #include "Material.h"
 
-// --- Headers para Keyframes (NUEVO) ---
+// Headers para Keyframes 
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -44,17 +43,18 @@
 const float toRadians = 3.14159265f / 180.0f;
 
 // =================================================================================
-// 1. VARIABLES GLOBALES Y OBJETOS PRINCIPALES
+// VARIABLES GLOBALES Y OBJETOS PRINCIPALES
 // =================================================================================
 
-// --- Sistema Principal ---
+// Sistema Principal 
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
 Camera camera;
 Skybox skybox;
+Skybox skyboxNoche;
 
-// --- Texturas ---
+// Texturas 
 Texture brickTexture;
 Texture dirtTexture;
 //Texture plainTexture;
@@ -71,7 +71,7 @@ Texture AdvTime_FontTexture;
 Texture Marco;
 Texture Puerta;
 
-// --- Modelos (Escenario y Ambientación) ---
+// Modelos 
 Model Juego_Pelota_M;
 Model Pelota_M;
 Model Piedra_M;
@@ -96,7 +96,7 @@ Model Cuerdas_M;
 Model Coronas_M;
 Model EstatuaLuchador_M;
 
-// --- Modelos (Personajes) ---
+// Modelos 
 Model MickeyC_M;
 Model MickeyT_M;
 Model MickeyBD_M;
@@ -117,25 +117,25 @@ Model FinnPD_M;
 Model FinnPI_M;
 Model Jake_M;
 
-// --- Materiales ---
+// Materiales 
 Material Material_brillante;
 Material Material_opaco;
 
-// --- Iluminación ---
+// Iluminación 
 DirectionalLight mainLight;
 PointLight pointLights[MAX_POINT_LIGHTS];
 SpotLight spotLights[MAX_SPOT_LIGHTS];
 
-// --- Control de Tiempo (DeltaTime) ---
+// Control de Tiempo 
 GLfloat deltaTime = 0.0f;
 GLfloat lastTime = 0.0f;
 static double limitFPS = 1.0 / 60.0;
 
-// --- Shaders (Rutas) ---
+// Shaders 
 static const char* vShader = "shaders/shader_light.vert";
 static const char* fShader = "shaders/shader_light.frag";
 
-// --- Variables de Animación (Letrero) ---
+// Variables de Animación  (Letrero)
 std::vector<glm::vec2> offsets = {
 	glm::vec2(0.65f, 0.57f), // P
 	glm::vec2(0.88f, 0.57f), // R
@@ -160,13 +160,12 @@ glm::vec3 basePos(-12.0f, 2.5f, 9.5f);
 float separacion = 1.5f;
 glm::vec3 escalaLetras(1.5f, 2.0f, 2.0f);
 
-// --- Variables de Animación (Puerta Izquierda 'O') ---
+//  Variables de Animación (Puertas)
 bool abierta = false;
 float ang = 0.0f;
 float vel = 90.0f;
 static bool teclaOPresionada = false;
 
-// --- Variables de Animación (Puerta Derecha 'P') ---
 bool puertaDerechaAbierta = false;
 bool puertaDerechaAnimando = false;
 bool teclaPPresionada = false;
@@ -175,7 +174,7 @@ float duracionFase = 1.0f;
 int fase = 0;
 glm::vec3 puertaDerechaPos(0.0f);
 
-// --- Variables de Animación (Juego de Pelota 'J') ---
+// Variables de Animación 
 float gravedad = -45.0f;
 bool pelotaSaltando = false;
 bool teclaJPresionada = false;
@@ -189,12 +188,12 @@ float jakeAnimTimer = 0.0f;
 float jakeAnguloGolpe = 0.0f;
 float pelotaOffset = 0.0f;
 float pelotaDireccion = 1.0f;
-bool avanza = true; // Esta variable no parece usarse
-bool lightsA[2] = { false, false }; // Esta variable no parece usarse
+bool avanza = true;
+bool lightsA[2] = { false, false };
 
-// =================================================================================
-// 2. MOTOR DE KEYFRAMES (Para el Globo)
-// =================================================================================
+// 
+// KEYFRAMES (Globo)
+// 
 
 // Estructura para almacenar la posición y rotación de un Keyframe
 struct FRAME
@@ -237,7 +236,7 @@ std::vector<FRAME> readKeyframes(const std::string& filename) {
 	return keyframes;
 }
 
-// Función de Interpolación (para la transición suave)
+// Función de Interpolación 
 float interpolation(float a, float b, float t) {
 	return a + (b - a) * t;
 }
@@ -248,7 +247,7 @@ void animate(float& posX, float& posY, float& posZ, float& rotY,
 
 	if (play && keyframes.size() > 1) {
 
-		// 'playIndex' va de 0.0 a 1.0. Cuando llega a 1.0, pasamos al siguiente frame.
+		// Cuando llega a 1.0, pasamos al siguiente frame.
 		if (playIndex > 1.0f) {
 			playIndex = 0.0f;
 			frameIndex++;
@@ -261,9 +260,9 @@ void animate(float& posX, float& posY, float& posZ, float& rotY,
 			printf("Animacion terminada.\n");
 		}
 
-		// IDs de los frames actual y siguiente
+		// Frames actual y siguiente
 		int currentFrame = frameIndex;
-		int nextFrame = frameIndex + 1; // No usamos % para que la animación termine
+		int nextFrame = frameIndex + 1;
 
 		// Interpolamos la posición y rotación entre el frame actual y el siguiente
 		posX = interpolation(keyframes[currentFrame].posX, keyframes[nextFrame].posX, playIndex);
@@ -272,12 +271,11 @@ void animate(float& posX, float& posY, float& posZ, float& rotY,
 		rotY = interpolation(keyframes[currentFrame].rotY, keyframes[nextFrame].rotY, playIndex);
 
 		// Aumentamos el índice de interpolación. 
-		// Ajusta '0.005f' para hacer la animación más rápida o lenta.
 		playIndex += 0.005f;
 	}
 }
 
-//--- Variables de Animación por Keyframes del Globo
+// Variables de Animación por Keyframes del Globo
 std::vector<FRAME> KeyFrameGlobo; // Vector para guardar frames
 int FrameIndexGlobo = 0;
 bool playGlobo = false;            // Bandera para reproducir animacion
@@ -293,6 +291,10 @@ bool teclaLPresionada = false;
 bool teclaKPresionada = false;
 bool teclaGPresionada = false;
 bool teclaCPresionada = false;
+
+// --- Variables para Spotlight con Teclado 
+bool spotLights_On = true; 
+bool teclaTPresionada = false;
 
 
 //funcion de calculo de normales por promedio de vertices 
@@ -570,6 +572,17 @@ int main()
 	skyboxFaces.push_back("Textures/Skybox/cupertin-lake_ft.tga");
 	skybox = Skybox(skyboxFaces);
 
+	//Skybox Noche
+	std::vector<std::string> skyboxFacesNoche;
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_rt.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_lf.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_dn.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_up.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_bk.tga");
+	skyboxFacesNoche.push_back("Textures/Skybox/cupertin-lake-night_ft.tga");
+	skyboxNoche = Skybox(skyboxFacesNoche);
+
+
 	// Configuración de Materiales 
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
@@ -580,27 +593,44 @@ int main()
 		0.0f, 0.0f, -1.0f);
 
 	unsigned int pointLightCount = 0;
-	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
+pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
 		0.0f, 1.0f,
 		0.0f, 2.5f, 1.5f,
-		0.3f, 0.2f, 0.1f);
+		1.0f, 0.07f, 0.017f);
 	pointLightCount++;
 
 	unsigned int spotLightCount = 0;
-	spotLights[0] = SpotLight(1.0f, 1.0f, 1.0f, // Linterna
-		0.0f, 2.0f,
-		0.0f, 0.0f, 0.0f,
-		0.0f, -1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		5.0f);
-	spotLightCount++;
-	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f, // Fija
-		1.0f, 2.0f,
-		5.0f, 10.0f, 0.0f,
-		0.0f, -5.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		15.0f);
-	spotLightCount++;
+
+
+
+	// Posición de las luces tipo PointLight en las lámparas del camino
+	pointLights[0] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 180.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// LUCES FIJAS (Siempre encendidas de noche)
+	// Lámpara en Z=210
+	pointLights[1] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 210.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// Lámpara en Z=240
+	pointLights[2] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 240.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
+
+	// Luz cerca de las Chozas
+	pointLights[3] = PointLight(1.0f, 0.8f, 0.6f,
+		0.0f, 1.0f,
+		0.0f, 5.0f, 60.0f,		
+		1.0f, 0.07f, 0.017f);
+	pointLightCount++;
 
 	// Variables Uniform 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
@@ -614,18 +644,43 @@ int main()
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 
 
-	// Posición y Rotación inicial del Avatar
-	float avatarPosX = -80.0f;
-	float avatarPosY = -0.5f;
-	float avatarPosZ = 5.0f;
-	float avatarRotY = 0.0f;
+	// Control de Avatares 
+	int cameraMode = 0;
+	bool teclaVPresionada = false;
 
-	float anguloCaminata = 0.0f;
+	// Switch del ersonaje activo (1=Mickey, 2=Peach, 3=Finn)
+	int activeAvatar = 1;
+	bool tecla1Presionada = false;
+	bool tecla2Presionada = false;
+	bool tecla3Presionada = false;
+
 	float velocidadCaminata = 8.0f;
 
-	// Variable para el modo de cámara
-	bool camara3raPersona = false;
-	bool teclaVPresionada = false;
+	// Variables de Mickey 
+	float avatarPosX = 2.5f;
+	float avatarPosY = -0.5f;
+	float avatarPosZ = 280.0f;
+	float avatarRotY = 0.0f;
+	float anguloCaminataMickey = 0.0f;
+
+	// Variables de Peach 
+	float peachPosX = 10.0f;
+	float peachPosY = -0.5f;
+	float peachPosZ = 280.0f;
+	float peachRotY = 0.0f;
+	float anguloCaminataPeach = 0.0f;
+
+	// Variables de Finn 
+	float finnPosX = -5.0f;
+	float finnPosY = -0.5f;
+	float finnPosZ = 280.0f;
+	float finnRotY = 0.0f;
+	float anguloCaminataFinn = 0.0f;
+
+	//Control Dia y Noche
+	float cicloTimer = 0.0f;
+	float cicloDuracion = 120.0f;
+	float tiempoDelDia = 0.0f;
 
 
 	while (!mainWindow.getShouldClose())
@@ -635,10 +690,10 @@ int main()
 		lastTime = now;
 
 		glfwPollEvents();
-		if (!camara3raPersona) {
+		if (cameraMode == 0) {
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
+			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		}
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
 		// Movimiento Manual del Globo  
 		float globoMoveSpeed = 20.0f; // Velocidad de movimiento del globo
@@ -679,7 +734,7 @@ int main()
 				indiceInicio = 0;
 		}
 
-		// Lógica de Puerta Izquierda (Tecla 'O')
+		// Puerta Izquierda con tecla "O"
 		if (mainWindow.getsKeys()[GLFW_KEY_O]) {
 			if (!teclaOPresionada) {
 				abierta = !abierta;
@@ -696,7 +751,7 @@ int main()
 			else ang = std::max(ang - step, targetAng);
 		}
 
-		// Lógica de Puerta Derecha (Tecla 'P')
+		// Lógica de Puerta Derecha con tecla "P"
 		if (mainWindow.getsKeys()[GLFW_KEY_P]) {
 			if (!teclaPPresionada && !puertaDerechaAnimando) {
 				puertaDerechaAnimando = true;
@@ -730,7 +785,7 @@ int main()
 			}
 		}
 
-		// Lógica de Juego de Pelota (Tecla 'J')
+		// Lógica Juego de Pelota con Tecla "J"
 		if (mainWindow.getsKeys()[GLFW_KEY_J]) {
 			if (!teclaJPresionada) {
 				teclaJPresionada = true;
@@ -817,57 +872,201 @@ int main()
 		animate(globoPosX, globoPosY, globoPosZ, globoRotY,
 			KeyFrameGlobo, FrameIndexGlobo, playIndexGlobo, playGlobo);
 
-		// Lógica de Movimiento y Animación del Avatar 
-		if (camara3raPersona) {
-
-			// Movimiento 
-			float avatarMoveSpeed = 15.0f;
-			if (mainWindow.getsKeys()[GLFW_KEY_W]) {
-				avatarPosZ -= avatarMoveSpeed * deltaTime;
-			}
-			if (mainWindow.getsKeys()[GLFW_KEY_S]) {
-				avatarPosZ += avatarMoveSpeed * deltaTime;
-			}
-			if (mainWindow.getsKeys()[GLFW_KEY_A]) {
-				avatarPosX -= avatarMoveSpeed * deltaTime;
-			}
-			if (mainWindow.getsKeys()[GLFW_KEY_D]) {
-				avatarPosX += avatarMoveSpeed * deltaTime;
-			}
-
-			// Animación 
-			if (mainWindow.getsKeys()[GLFW_KEY_W] || mainWindow.getsKeys()[GLFW_KEY_S] ||
-				mainWindow.getsKeys()[GLFW_KEY_A] || mainWindow.getsKeys()[GLFW_KEY_D])
-			{
-				anguloCaminata = glm::sin(glfwGetTime() * velocidadCaminata) * 25.0f;
-			}
-			else
-			{
-				anguloCaminata = 0.0f; // Reset de movimiento
-			}
-		}
-		else
-		{
-			// Si no estamos en modo 3ra persona, forzamos la animación a 0
-			anguloCaminata = 0.0f;
-		}
-
-		// Lógica Cambio de Cámara 
+		// Cambio de Cámara y Selección de Avatar 
+		// Modos de cámara: 0, 1, 2
 		if (mainWindow.getsKeys()[GLFW_KEY_V] && !teclaVPresionada) {
 			teclaVPresionada = true;
-			camara3raPersona = !camara3raPersona; // Invertir el modo de la camara
+			cameraMode = (cameraMode + 1) % 3; 
 		}
 		if (!mainWindow.getsKeys()[GLFW_KEY_V]) {
 			teclaVPresionada = false;
 		}
 
+		// Interruptor de Spotlights con letra "T"
+		if (mainWindow.getsKeys()[GLFW_KEY_T] && !teclaTPresionada) {
+			teclaTPresionada = true;
+			spotLights_On = !spotLights_On; // Invierte el estado
+		}
+		if (!mainWindow.getsKeys()[GLFW_KEY_T]) {
+			teclaTPresionada = false;
+		}
 
-		// Renderizado 
+
+		// Reseteamos las animaciones
+		anguloCaminataMickey = 0.0f;
+		anguloCaminataPeach = 0.0f;
+		anguloCaminataFinn = 0.0f;
+
+		if (cameraMode==1)
+		{
+			// Selección de Avatar (Teclas 1, 2, 3) 
+			if (mainWindow.getsKeys()[GLFW_KEY_1]) activeAvatar = 1;
+			if (mainWindow.getsKeys()[GLFW_KEY_2]) activeAvatar = 2;
+			if (mainWindow.getsKeys()[GLFW_KEY_3]) activeAvatar = 3;
+
+			// Lógica de Movimiento 
+			float avatarMoveSpeed = 15.0f;
+
+			switch (activeAvatar)
+			{
+				// Control de Mickey 
+			case 1:
+				avatarRotY -= mainWindow.getXChange() * 0.5f;
+				{
+					glm::vec3 forward = glm::vec3(-sin(glm::radians(avatarRotY)), 0.0f, -cos(glm::radians(avatarRotY)));
+					glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+					if (mainWindow.getsKeys()[GLFW_KEY_W]) { avatarPosX += forward.x * avatarMoveSpeed * deltaTime; avatarPosZ += forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_S]) { avatarPosX -= forward.x * avatarMoveSpeed * deltaTime; avatarPosZ -= forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_A]) { avatarPosX -= right.x * avatarMoveSpeed * deltaTime; avatarPosZ -= right.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_D]) { avatarPosX += right.x * avatarMoveSpeed * deltaTime; avatarPosZ += right.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_W] || mainWindow.getsKeys()[GLFW_KEY_S] || mainWindow.getsKeys()[GLFW_KEY_A] || mainWindow.getsKeys()[GLFW_KEY_D]) {
+						anguloCaminataMickey = glm::sin(glfwGetTime() * velocidadCaminata) * 25.0f;
+					}
+				}
+				break;
+
+				// Control de Peach 
+			case 2:
+				peachRotY -= mainWindow.getXChange() * 0.5f;
+				{
+					glm::vec3 forward = glm::vec3(-sin(glm::radians(peachRotY)), 0.0f, -cos(glm::radians(peachRotY)));
+					glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+					if (mainWindow.getsKeys()[GLFW_KEY_W]) { peachPosX += forward.x * avatarMoveSpeed * deltaTime; peachPosZ += forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_S]) { peachPosX -= forward.x * avatarMoveSpeed * deltaTime; peachPosZ -= forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_A]) { peachPosX -= right.x * avatarMoveSpeed * deltaTime; peachPosZ -= right.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_D]) { peachPosX += right.x * avatarMoveSpeed * deltaTime; peachPosZ += right.z * avatarMoveSpeed * deltaTime; }
+				}
+				break;
+
+				// Control de Finn 
+			case 3:
+				finnRotY -= mainWindow.getXChange() * 0.5f;
+				{
+					glm::vec3 forward = glm::vec3(-sin(glm::radians(finnRotY)), 0.0f, -cos(glm::radians(finnRotY)));
+					glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0.0f, 1.0f, 0.0f)));
+					if (mainWindow.getsKeys()[GLFW_KEY_W]) { finnPosX += forward.x * avatarMoveSpeed * deltaTime; finnPosZ += forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_S]) { finnPosX -= forward.x * avatarMoveSpeed * deltaTime; finnPosZ -= forward.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_A]) { finnPosX -= right.x * avatarMoveSpeed * deltaTime; finnPosZ -= right.z * avatarMoveSpeed * deltaTime; }
+					if (mainWindow.getsKeys()[GLFW_KEY_D]) {
+						finnPosX += right.x * avatarMoveSpeed * deltaTime; finnPosZ += right.z * avatarMoveSpeed * deltaTime;
+					}
+				}
+				break;
+			} 
+		} 
+
+
+		cicloTimer += deltaTime;
+		if (cicloTimer > cicloDuracion) {
+			cicloTimer -= cicloDuracion;
+		}
+		tiempoDelDia = cicloTimer / cicloDuracion;
+		float anguloSol = tiempoDelDia * 360.0f;
+		float anguloSolRad = glm::radians(anguloSol);
+
+		float intensidadSol_Difusa;   // Luz directa del sol
+		float intensidadSol_Ambiente; // Luz del cielo 
+
+		// ACTUALIZAR LUCES 
+		float intensidadSol;
+		float intensidadLamparas;
+
+		float duracionTransicion = 0.1f; 
+		float t_atardecer_inicio = 0.5f - (duracionTransicion / 2.0f); 
+		float t_atardecer_fin = 0.5f + (duracionTransicion / 2.0f);   
+		float t_amanecer_inicio = 1.0f - (duracionTransicion / 2.0f);
+
+		if (tiempoDelDia < t_atardecer_inicio) 
+		{
+			intensidadSol_Difusa = 1.0f;
+			intensidadSol_Ambiente = 0.3f;
+			intensidadLamparas = 0.0f;
+		}
+		else if (tiempoDelDia < t_atardecer_fin) 
+		{
+			float progreso = (tiempoDelDia - t_atardecer_inicio) / duracionTransicion;
+			intensidadSol_Difusa = glm::mix(1.0f, 0.15f, progreso);  
+			intensidadSol_Ambiente = glm::mix(0.3f, 0.15f, progreso); 
+			intensidadLamparas = glm::mix(0.0f, 1.0f, progreso);
+		}
+		else if (tiempoDelDia < t_amanecer_inicio) 
+		{
+			intensidadSol_Difusa = 0.15f;
+			intensidadSol_Ambiente = 0.15f; // Luz de noche
+			intensidadLamparas = 1.0f;
+		}
+		else //transicion de amanecer
+		{
+			float progreso = (tiempoDelDia - t_amanecer_inicio) / duracionTransicion;
+			intensidadSol_Difusa = glm::mix(0.15f, 1.0f, progreso);   
+			intensidadSol_Ambiente = glm::mix(0.15f, 0.3f, progreso); 
+			intensidadLamparas = glm::mix(1.0f, 0.0f, progreso);
+		}
+
+
+		// Actualiza el Sol 
+		mainLight.SetColor(1.0f, 1.0f, 1.0f);
+		mainLight.SetDiffuseIntensity(intensidadSol_Difusa); // brillo del sol
+		mainLight.SetAmbientIntensity(intensidadSol_Ambiente); // uz del cielo
+		mainLight.SetDirection(glm::vec3(sin(anguloSolRad), -cos(anguloSolRad), 0.0f));
+
+		// Actualizar las Lámparas 
+		pointLights[0].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[0].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[1].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[1].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[2].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[2].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		pointLights[3].SetDiffuseIntensity(intensidadLamparas);
+		pointLights[3].SetAmbientIntensity(intensidadLamparas * 0.2f);
+
+		// Control de Lámparas con Teclado 
+		float intensidadLamparasTeclado = 0.0f;
+		if (spotLights_On) { 
+			intensidadLamparasTeclado = 1.0f; // Intensidad de encendido
+		}
+
+		// Aplicamos la intensidad
+		pointLights[1].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[1].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
+
+		pointLights[2].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[2].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
+
+		pointLights[3].SetDiffuseIntensity(intensidadLamparasTeclado);
+		pointLights[3].SetAmbientIntensity(intensidadLamparasTeclado * 0.2f);
+
+		// RENDERIZADO 
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+		// DIBUJAR EL SKYBOX 
+		//
+		glm::mat4 viewMatrixSkybox;
+		if (cameraMode) {
+			float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
+			float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
+			glm::vec3 posDeseada = glm::vec3(avatarPosX + camOffsetX, avatarPosY + 8.0f, avatarPosZ + camOffsetZ);
+			glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
+			viewMatrixSkybox = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else {
+			viewMatrixSkybox = camera.calculateViewMatrix();
+		}
 
+		// Decidimos qué skybox dibujar
+		if (tiempoDelDia > 0.5) {
+			skyboxNoche.DrawSkybox(viewMatrixSkybox, projection);
+		}
+		else {
+			skybox.DrawSkybox(viewMatrixSkybox, projection);
+		}
+
+
+		// CONFIGURACIÓN DEL SHADER 
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
@@ -878,29 +1077,97 @@ int main()
 		uniformShininess = shaderList[0].GetShininessLocation();
 
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		// Lógica Cámara en 3ra Persona 
-		if (camara3raPersona) {
-			glm::vec3 posDeseada = glm::vec3(avatarPosX, avatarPosY, avatarPosZ) + glm::vec3(0.0f, 8.0f, 20.0f);
-			glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f))));
+
+		// CÁLCULO DE MATRIZ DE VISTA Y POSICIÓN DE OJO 
+
+		glm::mat4 viewMatrix;
+		glm::vec3 eyePosition;
+
+		// Lógica de Cámara 
+		switch (cameraMode)
+		{
+			// Modo 3ra Persona 
+		case 1:
+			// Elegir a quién seguir
+			switch (activeAvatar)
+			{
+			case 1: // Mickey
+			{
+				float camOffsetX = sin(glm::radians(avatarRotY)) * 20.0f;
+				float camOffsetZ = cos(glm::radians(avatarRotY)) * 20.0f;
+				glm::vec3 posDeseada = glm::vec3(avatarPosX + camOffsetX, avatarPosY + 8.0f, avatarPosZ + camOffsetZ);
+				glm::vec3 target = glm::vec3(avatarPosX, avatarPosY + 8.0f, avatarPosZ);
+				viewMatrix = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+				eyePosition = posDeseada;
+			}
+			break;
+			case 2: // Peach
+			{
+				float camOffsetX = sin(glm::radians(peachRotY)) * 20.0f;
+				float camOffsetZ = cos(glm::radians(peachRotY)) * 20.0f;
+				glm::vec3 posDeseada = glm::vec3(peachPosX + camOffsetX, peachPosY + 8.0f, peachPosZ + camOffsetZ);
+				glm::vec3 target = glm::vec3(peachPosX, peachPosY + 8.0f, peachPosZ);
+				viewMatrix = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+				eyePosition = posDeseada;
+			}
+			break;
+			case 3: // Finn
+			{
+				float camOffsetX = sin(glm::radians(finnRotY)) * 20.0f;
+				float camOffsetZ = cos(glm::radians(finnRotY)) * 20.0f;
+				glm::vec3 posDeseada = glm::vec3(finnPosX + camOffsetX, finnPosY + 8.0f, finnPosZ + camOffsetZ);
+				glm::vec3 target = glm::vec3(finnPosX, finnPosY + 8.0f, finnPosZ);
+				viewMatrix = glm::lookAt(posDeseada, target, glm::vec3(0.0f, 1.0f, 0.0f));
+				eyePosition = posDeseada;
+			}
+			break;
+			}
+			break;
+
+		case 2:
+		{
+			camera.keyControl(mainWindow.getsKeys(), deltaTime);
+			glm::vec3 pos = camera.getCameraPosition();
+			pos.y = 150.0f; 
+			glm::vec3 target = glm::vec3(pos.x, 0.0f, pos.z);
+
+			viewMatrix = glm::lookAt(pos, target, glm::vec3(0.0f, 0.0f, -1.0f)); 
+			eyePosition = pos;
 		}
-		else {
-			// Camara normal
-			glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
+		break;
+
+		default:
+			viewMatrix = camera.calculateViewMatrix();
+			eyePosition = camera.getCameraPosition();
+			break;
 		}
 
-		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		// Enviamos la matriz al shader
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniform3f(uniformEyePosition, eyePosition.x, eyePosition.y, eyePosition.z);
 
-		// Configuración de Luces
+
+		// CONFIGURACIÓN DE LUCES 
+
 		glm::vec3 lowerLight = camera.getCameraPosition();
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
+
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
-
 		// Renderizado de la Escena 
+
+		float radioOrbita = 800.0f; // Sol
+		float solPosX = sin(anguloSolRad) * radioOrbita;
+		float solPosY = -cos(anguloSolRad) * radioOrbita; // El sol sube y baja
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(solPosX, solPosY, -300.0f));
+		model = glm::scale(model, glm::vec3(20.0f, 20.0f, 20.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		Piedra_M.RenderModel(); // Reuso del modelo de la pelota
 
 		// Arco con Letrero
 		model = glm::mat4(1.0);
@@ -1177,7 +1444,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		arbol_M.RenderModel();
-		
+
 
 		// Banca
 		model = glm::mat4(1.0);
@@ -1424,7 +1691,7 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		Pillar_M.RenderModel();
 
-		
+
 
 		//	Lampara
 		model = glm::mat4(1.0);
@@ -1466,6 +1733,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		lampara_M.RenderModel();
+
+
 
 
 		// Ring
@@ -1537,6 +1806,7 @@ int main()
 					MICKEY MOUSE
 		*/	//									//
 
+
 		// Matriz Padre 
 		// Posición general del avatar 
 		glm::mat4 modelAvatar = glm::mat4(1.0);
@@ -1555,11 +1825,11 @@ int main()
 		modelCabeza = glm::translate(modelCabeza, glm::vec3(0.0f, -2.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabeza));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		MickeyC_M.RenderModel(); // Dibuja la Cabeza
+		MickeyC_M.RenderModel();
 
 		// Brazo Derecho (Hijo del Torso) 
 		glm::mat4 modelBrazoD = modelTorso;
-		modelBrazoD = glm::rotate(modelBrazoD, glm::radians(anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelBrazoD = glm::rotate(modelBrazoD, glm::radians(anguloCaminataMickey), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelBrazoD = glm::translate(modelBrazoD, glm::vec3(-1.0f, 3.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoD));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
@@ -1567,105 +1837,150 @@ int main()
 
 		// Brazo Izquierdo (Hijo del Torso) 
 		glm::mat4 modelBrazoI = modelTorso;
-		modelBrazoI = glm::rotate(modelBrazoI, glm::radians(-anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelBrazoI = glm::rotate(modelBrazoI, glm::radians(-anguloCaminataMickey), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelBrazoI = glm::translate(modelBrazoI, glm::vec3(1.0f, 3.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoI));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		MickeyBI_M.RenderModel();
 
-		// --- 5. Pierna Derecha (Hijo del Torso) ---
+		// Pierna Derecha (Hijo del Torso) 
 		glm::mat4 modelPiernaD = modelTorso;
-		modelPiernaD = glm::rotate(modelPiernaD, glm::radians(-anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelPiernaD = glm::rotate(modelPiernaD, glm::radians(-anguloCaminataMickey), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelPiernaD = glm::translate(modelPiernaD, glm::vec3(-1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaD));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		MickeyPD_M.RenderModel();
 
-		// --- 6. Pierna Izquierda (Hijo del Torso) ---
+		// Pierna Izquierda (Hijo del Torso) 
 		glm::mat4 modelPiernaI = modelTorso;
-		modelPiernaI = glm::rotate(modelPiernaI, glm::radians(anguloCaminata), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelPiernaI = glm::rotate(modelPiernaI, glm::radians(anguloCaminataMickey), glm::vec3(1.0f, 0.0f, 0.0f));
 		modelPiernaI = glm::translate(modelPiernaI, glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaI));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		MickeyPI_M.RenderModel();
 
 
-		// Peach
-		glm::mat4 baseModelPeach = glm::mat4(1.0);
-		baseModelPeach = glm::translate(baseModelPeach, glm::vec3(-5.0f, -0.5f, -5.0f));
-		baseModelPeach = glm::rotate(baseModelPeach, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		baseModelPeach = glm::scale(baseModelPeach, glm::vec3(0.2f, 0.2f, 0.2f));
+		/*	//									//
 
-		glm::mat4 modelCPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCPeach));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PeachC_M.RenderModel();
 
-		glm::mat4 modelTPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTPeach));
+			/////		PEACH				//////
+
+
+		*/	//									//
+
+
+		// Matriz Padre Posición general 
+		glm::mat4 modelAvatarPeach = glm::mat4(1.0);
+		modelAvatarPeach = glm::translate(modelAvatarPeach, glm::vec3(peachPosX, peachPosY, peachPosZ));
+		modelAvatarPeach = glm::rotate(modelAvatarPeach, glm::radians(peachRotY), glm::vec3(0.0f, 1.0f, 0.0f));
+		modelAvatarPeach = glm::scale(modelAvatarPeach, glm::vec3(0.06f, 0.06f, 0.06f));
+
+		// Torso (Padre de todas las partes)
+		glm::mat4 modelTorsoPeach = modelAvatarPeach;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTorsoPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachT_M.RenderModel();
 
-		glm::mat4 modelBDPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBDPeach));
+		// Cabeza (Hijo del Torso)
+		glm::mat4 modelCabezaPeach = modelTorsoPeach;
+		modelCabezaPeach = glm::translate(modelCabezaPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabezaPeach));
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		PeachC_M.RenderModel();
+
+		// Brazo Derecho (Hijo del Torso)
+		glm::mat4 modelBrazoDPeach = modelTorsoPeach;
+		modelBrazoDPeach = glm::translate(modelBrazoDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoDPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachBD_M.RenderModel();
 
-		glm::mat4 modelBIPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBIPeach));
+		// Brazo Izquierdo (Hijo del Torso)
+		glm::mat4 modelBrazoIPeach = modelTorsoPeach;
+		modelBrazoIPeach = glm::translate(modelBrazoIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoIPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachBI_M.RenderModel();
 
-		glm::mat4 modelPDPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPDPeach));
+		// Pierna Derecha (Hijo del Torso)
+		glm::mat4 modelPiernaDPeach = modelTorsoPeach;
+		modelPiernaDPeach = glm::translate(modelPiernaDPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaDPeach));
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		PeachPD_M.RenderModel();
 
-		glm::mat4 modelPIPeach = baseModelPeach;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPIPeach));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		PeachPI_M.RenderModel();
 
-		// Finn
-		glm::mat4 baseModelFinn = glm::mat4(1.0);
-		baseModelFinn = glm::translate(baseModelFinn, glm::vec3(0.0f, -0.5f, -15.0f));
-		baseModelFinn = glm::rotate(baseModelFinn, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		baseModelFinn = glm::scale(baseModelFinn, glm::vec3(2.0f, 2.0f, 2.0f));
+			// Pierna Izquierda (Hijo del Torso)
+			glm::mat4 modelPiernaIPeach = modelTorsoPeach;
+			modelPiernaIPeach = glm::translate(modelPiernaIPeach, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIPeach));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			PeachPI_M.RenderModel();
 
-		glm::mat4 modelCFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnC_M.RenderModel();
 
-		glm::mat4 modelTFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnT_M.RenderModel();
 
-		glm::mat4 modelBDFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBDFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnBD_M.RenderModel();
+			/*	//									//
 
-		glm::mat4 modelBIFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBIFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnBI_M.RenderModel();
 
-		glm::mat4 modelPDFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPDFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnPD_M.RenderModel();
+				/////		FINN				//////
 
-		glm::mat4 modelPIFinn = baseModelFinn;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPIFinn));
-		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		FinnPI_M.RenderModel();
 
-		// --- 5.5. Finalización del Frame ---
-		glUseProgram(0);
-		mainWindow.swapBuffers();
+			*/	//									//
+
+
+			// Matriz Padre (Posición general en el mundo)
+			glm::mat4 modelAvatarFinn = glm::mat4(1.0);
+			modelAvatarFinn = glm::translate(modelAvatarFinn, glm::vec3(finnPosX, finnPosY, finnPosZ));
+			modelAvatarFinn = glm::rotate(modelAvatarFinn, glm::radians(finnRotY), glm::vec3(0.0f, 1.0f, 0.0f));
+			modelAvatarFinn = glm::scale(modelAvatarFinn, glm::vec3(0.9f, 0.9f, 0.9f));
+
+			// Torso (Padre de todas las partes)
+			glm::mat4 modelTorsoFinn = modelAvatarFinn;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelTorsoFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnT_M.RenderModel();
+
+			// Cabeza (Hijo del Torso)
+			glm::mat4 modelCabezaFinn = modelTorsoFinn;
+			modelCabezaFinn = glm::translate(modelCabezaFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelCabezaFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnC_M.RenderModel();
+
+			// Brazo Derecho (Hijo del Torso)
+			glm::mat4 modelBrazoDFinn = modelTorsoFinn;
+			modelBrazoDFinn = glm::translate(modelBrazoDFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoDFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnBD_M.RenderModel();
+
+			// Brazo Izquierdo (Hijo del Torso)
+			glm::mat4 modelBrazoIFinn = modelTorsoFinn;
+			modelBrazoIFinn = glm::translate(modelBrazoIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelBrazoIFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnBI_M.RenderModel();
+
+			// Pierna Derecha (Hijo del Torso)
+			glm::mat4 modelPiernaDFinn = modelTorsoFinn;
+			modelPiernaDFinn = glm::translate(modelPiernaDFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaDFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnPD_M.RenderModel();
+
+			// Pierna Izquierda (Hijo del Torso)
+			glm::mat4 modelPiernaIFinn = modelTorsoFinn;
+			modelPiernaIFinn = glm::translate(modelPiernaIFinn, glm::vec3(0.0f, 0.0f, 0.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(modelPiernaIFinn));
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			FinnPI_M.RenderModel();
+
+
+			// Finalización del Frame 
+			glUseProgram(0);
+			mainWindow.swapBuffers();
+		}
+
+		return 0;
 	}
 
-	return 0;
-}
