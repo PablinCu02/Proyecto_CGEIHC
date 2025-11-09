@@ -40,7 +40,6 @@ El entorno contiene diversos objetos animados que el usuario puede controlar con
 
 - 🎈 **Globo aerostático:** se puede mover libremente en los ejes X, Y y Z.  
 - 🚪 **Puertas:** se abren y cierran con las teclas O y P, mediante rotaciones y desplazamientos interpolados.  
-- 🪧 **Letrero animado:** muestra texto con un efecto deslizante, simulando movimiento continuo.  
 - 🏐 **Juego de Pelota:** el personaje Jake golpea una pelota que se eleva, rebota y se desplaza horizontalmente en un ciclo continuo.  
 
 Cada animación responde a las acciones del usuario y está sincronizada con las condiciones del entorno (como la iluminación).
