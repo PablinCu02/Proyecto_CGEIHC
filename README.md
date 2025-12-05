@@ -113,3 +113,4 @@ Permite grabar y reproducir una ruta de vuelo personalizada.
 - **Carpeta lib:** [Carpeta lib](https://drive.google.com/drive/folders/1phx9GzvBb0pSupA4kLWQDaQQdpHY-tly?usp=sharing)
 - **Carpeta include:** [Carpeta include](https://drive.google.com/drive/folders/1SuEcWnI9NnXHGzgX0b3ktQ4wJPU-Zjmn?usp=sharing)
 - **Carpeta glm:** [Carpeta glm](https://drive.google.com/drive/folders/108ZuEpXoe4z1-W6F_VkIzPFuzwkITi1V?usp=sharing)
+- **Reportes:** [Reportes (Inglés y Español)](https://drive.google.com/drive/folders/1LDQxCswRL2uGmUZsJ7PzROdDYWYaJRbD?usp=sharing)
