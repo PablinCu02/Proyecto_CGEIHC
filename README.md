@@ -1,83 +1,115 @@
-
-# 🧱 Proyecto_CGEIHC
+# 🧱 Proyecto Final
 
 **Integrantes del equipo:**
-- 🧍‍♀️Lechuga Castillo Shareny Ixchel	 - 319004252
-- 🧍‍♂️ Gonzalez Cuellar Pablo Arturo - 319241013	
+- 🧍‍♀️ Lechuga Castillo Shareny Ixchel - 319004252
+- 🧍‍♂️ Gonzalez Cuellar Pablo Arturo - 319241013
 - 🧍‍♂️ Sánchez Medina José Santiago - 319246881
-  
-## 🎮 Descripción General del Proyecto
 
-Este proyecto es un **ambiente virtual 3D interactivo** desarrollado en **OpenGL**, que combina las temáticas **prehispánica** y **lucha libre mexicana**, integrando además universos distintos elegidos por cada integrante del equipo:
+---
 
-- 🍄 **Mario Bros** (*Shareny*)  
-- 🐭 **Mickey Mouse** (*Santiago*)  
-- 🕓 **Hora de Aventura** (*Pablo*)  
+## 🎮 Descripción General
 
-Cada universo aporta modelos, personajes y elementos característicos que conviven en un mismo escenario —una alameda temática—, donde el usuario puede recorrer libremente el entorno, interactuar con objetos, observar animaciones y cambiar la vista de cámara.
+Este proyecto es un ambiente virtual interactivo 3D desarrollado en **C++** y **OpenGL** para la materia de Computación Gráfica e Interacción Humano-Computadora. El escenario representa una "zona abierta" que fusiona las temáticas de **Lucha Libre Mexicana** y **Cultura Prehispánica** con un toque futurista, integrando personajes icónicos de distintos universos:
 
-## 🧠 Funcionamiento Principal
+- 🍄 **Mario Bros** (*Shareny*)
+- 🐭 **Mickey Mouse** (*Santiago*)
+- 🕓 **Hora de Aventura** (*Pablo*)
 
-### 🧭 Recorrido del escenario (Cámaras)
-El usuario puede desplazarse por todo el escenario con **tres tipos de cámara**:
+El sistema demuestra el dominio de técnicas avanzadas como modelado jerárquico, iluminación dinámica (ciclo día/noche), múltiples sistemas de cámara y animación por *keyframes*.
 
-- 🎥 **Cámara de tercera persona:** sigue al avatar activo.  
-- 🚁 **Cámara aérea:** muestra una vista superior del mapa.  
-- 🕹️ **Cámara libre o isométrica:** permite explorar el entorno manualmente.  
+---
 
-Estas cámaras pueden alternarse mediante el teclado, ofreciendo una experiencia inmersiva y flexible.
+## ⚙️ Instalación y Configuración (¡Importante!)
 
+Debido al tamaño de los archivos, los recursos externos (modelos, texturas y librerías) no están en el repositorio y deben descargarse por separado. Sigue estos pasos estrictamente:
 
-### 🌅 Ciclo día/noche e iluminación dinámica
-El escenario cuenta con un sistema de iluminación direccional que simula el paso del tiempo:
+1.  **Descargar el Código:** Clona este repositorio o descarga el ZIP con el código fuente y el archivo de solución (`.sln`).
+2.  **Descargar Recursos:** Ve a la sección **"🗃️ Recursos"** al final de este documento y descarga todas las carpetas (`Models`, `Textures`, `Shaders`, `lib`, `include`, `glm`) desde los enlaces de Google Drive.
+3.  **Organizar Carpetas:** Coloca todas las carpetas descargadas **en la misma carpeta donde se encuentra el archivo `.sln`** (la carpeta raíz de la solución).
+4.  **Abrir Proyecto:** Abre el archivo `.sln` en **Visual Studio**.
+5.  **🔧 CONFIGURACIÓN IMPORTANTE DEL DIRECTORIO:**
+    * Ve al **Explorador de Soluciones**, haz clic derecho en el proyecto -> **Propiedades**.
+    * Navega a **Propiedades de Configuración** > **Depuración**.
+    * En el campo **Directorio de trabajo**, cambia el valor a:
+      `$(SolutionDir)`
+    * *Esto paso asegura que el ejecutable encuentre las carpetas que acabas de descargar.*
+6.  **Ejecutar:** Compila y corre el programa.
 
-- Durante el día se muestra un skybox con cielos despejados.  
-- Al caer la noche, el skybox cambia a una versión nocturna y se encienden las luminarias puntuales (lámparas del entorno), generando un ambiente visual realista y dinámico.
+---
 
+## 🕹️ Manual de Usuario (Controles)
 
-### 🎬 Animaciones Interactivas
-El entorno contiene diversos objetos animados que el usuario puede controlar con el teclado:
+La interacción se divide por modos de cámara. Usa la tecla **`V`** para alternar entre ellos.
 
-- 🎈 **Globo aerostático:** se puede mover libremente en los ejes X, Y y Z.  
-- 🚪 **Puertas:** se abren y cierran con las teclas O y P, mediante rotaciones y desplazamientos interpolados.  
-- 🏐 **Juego de Pelota:** el personaje Jake golpea una pelota que se eleva, rebota y se desplaza horizontalmente en un ciclo continuo.  
+### 1. Control de Cámaras
+| Tecla | Acción | Descripción |
+| :--- | :--- | :--- |
+| **`V`** | **Cambiar Modo** | Ciclo: **Cámara Libre** $\to$ **3ra Persona** $\to$ **Aérea**. |
 
-Cada animación responde a las acciones del usuario y está sincronizada con las condiciones del entorno (como la iluminación).
+---
 
+### 2. Modo: Cámara Libre (Exploración)
+Permite volar libremente por el escenario para observar detalles.
+* **`W`, `A`, `S`, `D`**: Desplazarse por el mundo.
+* **`Mouse`**: Girar la vista (mirar alrededor).
 
-### 🧱 Modelado y Texturizado
-El escenario incluye modelos en 3D, algunos creados por los integrantes y otros importados, texturizados con imágenes representativas de cada universo.  
-Se aplicaron materiales con propiedades de brillo y reflexión para que reaccionen correctamente a la iluminación direccional y puntual, mejorando el realismo visual y la cohesión del entorno.
+---
 
+### 3. Modo: Tercera Persona (Control de Avatares)
+*Actívalo presionando `V`. La cámara seguirá automáticamente al personaje seleccionado.*
 
-### ⌨️ Interacción del Usuario
-Todo el proyecto se controla mediante teclado y mouse, lo que permite:
+**Selección de Personaje:**
+| Tecla | Personaje Activo |
+| :--- | :--- |
+| **`1`** | **Mickey Mouse** (Avatar por defecto) |
+| **`2`** | **Peach** |
+| **`3`** | **Finn el Humano** |
 
-- Mover la cámara.  
-- Cambiar el modo de vista.  
-- Activar animaciones.  
-- Manipular objetos (globo, puertas, etc.).  
+**Movimiento del Personaje:**
+| Control | Acción |
+| :--- | :--- |
+| **`W`** | Caminar hacia adelante (en la dirección que mira). |
+| **`S`** | Caminar hacia atrás. |
+| **`A` / `D`** | Desplazamiento lateral (Strafe). |
+| **`Mouse`** | Girar al personaje (Cambiar dirección). |
 
-La interfaz de control busca ser intuitiva, permitiendo una navegación fluida dentro del entorno 3D.
+---
 
+### 4. Modo: Cámara Aérea
+Vista cenital superior para observar la distribución del mapa.
+* **`Flechas (Arriba/Abajo)`**: Desplazarse en el eje Z (Norte/Sur).
+* **`Flechas (Izq/Der)`**: Desplazarse en el eje X (Este/Oeste).
 
-## 🌟 Propósito del Proyecto
-El objetivo principal fue integrar en un mismo entorno 3D los conceptos fundamentales de computación gráfica, tales como:
+---
 
-- Modelado  
-- Texturizado  
-- Animación  
-- Iluminación  
-- Cámaras  
+## 💡 Iluminación y Ambiente Dinámico
 
-Con ello se busca demostrar el dominio del ciclo completo de renderizado interactivo en tiempo real.  
-El proyecto combina creatividad, técnica y colaboración, mostrando un escenario único que mezcla la **cultura mexicana** con personajes icónicos de universos distintos.
+| Evento / Tecla | Descripción |
+| :--- | :--- |
+| **Ciclo Automático** | **Día/Noche:** El sol se mueve por el cielo y la iluminación ambiental cambia cada **24 segundos**. Las bombillas (PointLights) se encienden solas al anochecer. |
+| **`T`** | **Reflectores Manuales:** Enciende y apaga los *Spotlights* (conos de luz) ubicados sobre las lámparas principales. |
 
-## 📁 Control de Documentos y Bitácoras
-Para mantener un control organizado del proyecto, todos los documentos y bitácoras estarán disponibles en el siguiente drive:
+---
 
-### 🗃️ Bitácoras y Registros
-- **Bitácora de Desarrollo:** [Ver Bitácora](https://drive.google.com/drive/folders/1PeHtp8mtOvBGTQ_S2jvSjIkZ666TdskZ)
-- **Manual Técnico:** [Ver Manual Técnico](https://docs.google.com/document/d/1ZRrWnJ8PEDSoCVYZ63xxCsR5pub87ACX/edit)
-- **Manual de Usuario:** [Manual de Usuario](https://docs.google.com/document/d/1nP4AMxSB3-P2ItbOTvQf6p9prw82ZFX_B9xaPbze0Zk/edit?usp=sharing)
-- **General:** [Carpeta General](https://drive.google.com/drive/folders/1slKRdCUQFJRuRNLjwH2wsBf0DBJPoNXf)
+## 🎬 Animaciones y Objetos
+
+| Tecla | Objeto | Acción |
+| :--- | :--- | :--- |
+| **`J`** | **Juego de Pelota** | Activa el salto de la pelota y la reacción del NPC (Jake). |
+
+### 🎈 Animación por Keyframes (Globo Aerostático)
+Permite grabar y reproducir una ruta de vuelo personalizada.
+
+* **Grabar:** Usa **`F`, `G`, `H`, `T`** para mover el globo y **`L`** para guardar un punto clave (keyframe).
+* **Reproducir:** Presiona **`K`** para ver la animación interpolada suavemente.
+* **Guardar/Cargar:** Usa **`G`** para exportar la ruta a archivo y **`C`** para importarla.
+
+---
+
+### 🗃️ Recursos
+- **Carpeta de Texturas:** [Ver Carpeta de Texturas](https://drive.google.com/drive/folders/1iSDGjujtjXizwiIFrijJAxO6rM-bI-Cf?usp=sharing)
+- **Carpeta de Modelos:** [Ver Carpeta de Modelos](https://drive.google.com/drive/folders/1tDAPH9ozxmOgXA0x1NdmaJIb69-Nn54r?usp=sharing)
+- **Carpeta de Shaders:** [Ver Carpeta de Shaders](https://drive.google.com/drive/folders/1KPXTRxQELVwlBXxl7NGknWgMDMBnX6wK?usp=sharing)
+- **Carpeta lib:** [Carpeta lib](https://drive.google.com/drive/folders/1phx9GzvBb0pSupA4kLWQDaQQdpHY-tly?usp=sharing)
+- **Carpeta include:** [Carpeta include](https://drive.google.com/drive/folders/1SuEcWnI9NnXHGzgX0b3ktQ4wJPU-Zjmn?usp=sharing)
+- **Carpeta glm:** [Carpeta glm](https://drive.google.com/drive/folders/108ZuEpXoe4z1-W6F_VkIzPFuzwkITi1V?usp=sharing)
